@@ -11,8 +11,8 @@ CXXFLAGS	= -Wall -Wextra -Werror -std=c++98
 INCLUDES	= $(addprefix -I $(INCDIR), $(MODULES))
 
 SRCS		= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.cpp))
+TEMP		= $(subst $(SDIR),$(ODIR),$(SRCS))
 OBJS		= $(subst .cpp,.o,$(TEMP_OBJS))
-TEMP_OBJS	= $(subst $(SDIR),$(ODIR),$(SRCS))
 
 vpath %.cpp $(SRCDIR)
 
