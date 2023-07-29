@@ -3,12 +3,12 @@ MODULES		= class main
 
 SDIR		= src/
 ODIR		= obj/
-INCDIR		= includes
+INCDIR		= includes/
 SRCDIR		= $(addprefix $(SDIR), $(MODULES))
 OBJDIR		= $(addprefix $(ODIR), $(MODULES))
 
 CXXFLAGS	= -Wall -Wextra -Werror -std=c++98
-INCLUDES	= $(addprefix -I $(INCDIR)/, $(MODULES))
+INCLUDES	= $(addprefix -I $(INCDIR), $(MODULES))
 
 SRCS		= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.cpp))
 OBJS		= $(subst .cpp,.o,$(TEMP_OBJS))
