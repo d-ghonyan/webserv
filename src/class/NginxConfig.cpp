@@ -1,5 +1,4 @@
 #include "NginxConfig.hpp"
-#include "Server.hpp"
 
 NginxConfig::NginxConfig(): path(DEFAULT_FILE_PATH)
 {
