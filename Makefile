@@ -21,6 +21,8 @@ $1/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $$< -o $$@
 endef 
 
+$(foreach dir, $(OBJDIR), $(eval $(call compile, $(dir))))
+
 all: mkdir $(NAME)
 
 mkdir:
@@ -28,8 +30,6 @@ mkdir:
 
 $(NAME): $(OBJS)
 	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
-
-$(foreach dir, $(OBJDIR), $(eval $(call compile, $(dir))))
 
 clean:
 	rm -f $(OBJS)

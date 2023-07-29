@@ -22,5 +22,4 @@ public:
 	~Server();
 };
 
-
 #endif // CLASS_SERVER_HPP

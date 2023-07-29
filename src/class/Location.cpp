@@ -2,8 +2,10 @@
 
 Location::Location()
 {
+
 }
 
 Location::~Location()
 {
+	
 }
