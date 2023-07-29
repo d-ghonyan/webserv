@@ -12,7 +12,7 @@ INCLUDES	= $(addprefix -I $(INCDIR), $(MODULES))
 
 SRCS		= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.cpp))
 TEMP		= $(subst $(SDIR),$(ODIR),$(SRCS))
-OBJS		= $(subst .cpp,.o,$(TEMP_OBJS))
+OBJS		= $(subst .cpp,.o,$(TEMP))
 
 vpath %.cpp $(SRCDIR)
 
