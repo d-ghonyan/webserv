@@ -1,24 +1,35 @@
-NAME = webserv
+NAME		= webserv
+MODULES		= class main
 
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+SDIR		= src/
+ODIR		= obj/
+INCDIR		= includes
+SRCDIR		= $(addprefix $(SDIR), $(MODULES))
+OBJDIR		= $(addprefix $(ODIR), $(MODULES))
 
-SRCDIR = srcs
-OBJDIR = objs
+CXXFLAGS	= -Wall -Wextra -Werror -std=c++98
+INCLUDES	= $(addprefix -I $(INCDIR)/, $(MODULES))
 
-SRCS = $(wildcard $(SRCDIR)/*.cpp)
+SRCS		= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.cpp))
+OBJS		= $(subst .cpp,.o,$(TEMP_OBJS))
+TEMP_OBJS	= $(subst $(SDIR),$(ODIR),$(SRCS))
 
-OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
+vpath %.cpp $(SRCDIR)
+
+define compile
+$1/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $$< -o $$@
+endef 
 
 all: mkdir $(NAME)
 
 mkdir:
-	mkdir -p objs
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@mkdir -p $(OBJDIR)
 
 $(NAME): $(OBJS)
 	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
+
+$(foreach dir, $(OBJDIR), $(eval $(call compile, $(dir))))
 
 clean:
 	rm -f $(OBJS)
