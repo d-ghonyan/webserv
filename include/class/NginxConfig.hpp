@@ -10,6 +10,7 @@
 # include <iostream>
 
 # include "Server.hpp"
+# include "Token.hpp"
 
 # define DEFAULT_FILE_PATH "conf.d/webserv.conf"
 
@@ -23,6 +24,9 @@ class NginxConfig
 	NginxConfig(const std::string &file_path);
 
 	void parse();
+	void print(std::vector<Token>& tokens, size_t i, std::string indent);
+
+	void generateTokens(const std::string& file);
 
 	~NginxConfig();
 };

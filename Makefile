@@ -1,13 +1,13 @@
 NAME		= webserv
-MODULES		= class main
+MODULES		= main class util
 
 SDIR		= src/
 ODIR		= obj/
-INCDIR		= includes/
+INCDIR		= include/
 SRCDIR		= $(addprefix $(SDIR), $(MODULES))
 OBJDIR		= $(addprefix $(ODIR), $(MODULES))
 
-CXXFLAGS	= -Wall -Wextra -Werror -std=c++98
+CXXFLAGS	= -Wall -Wextra -Werror -g -std=c++98
 INCLUDES	= $(addprefix -I $(INCDIR), $(MODULES))
 
 SRCS		= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.cpp))
