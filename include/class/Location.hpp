@@ -7,9 +7,14 @@
 class Location
 {
 private:
-	std::vector<Location> locations;
 public:
 	Location();
+	/// TODO: make private
+	std::string name;
+	std::vector<Location> locations;
+	Location(const std::string& name);
+	Location& getLastLocation();
+	void pushLocation(Location l);
 	~Location();
 };
 

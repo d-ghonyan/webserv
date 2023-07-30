@@ -20,15 +20,17 @@ class NginxConfig
 		const std::string path;
 		std::vector<Server> servers;
 	public:
-	NginxConfig();
-	NginxConfig(const std::string &file_path);
+		NginxConfig();
+		NginxConfig(const std::string &file_path);
 
-	void parse();
-	void print(std::vector<Token>& tokens, size_t i, std::string indent);
+		void parse();
+		void print(std::vector<Token>& tokens, size_t i, std::string indent);
 
-	void generateTokens(const std::string& file);
+		void generateTokens(const std::string& file);
+		template<typename T>
+		void parseTokens(const std::vector<Token>& tokens, size_t i, e_type type, T& block);
 
-	~NginxConfig();
+		~NginxConfig();
 };
 
 #endif // CLASS_NGINX_CONFIG_HPP

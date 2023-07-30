@@ -1,14 +1,8 @@
 #include "NginxConfig.hpp"
 
-NginxConfig::NginxConfig(): path(DEFAULT_FILE_PATH), servers(std::vector<Server>())
-{
+NginxConfig::NginxConfig(): path(DEFAULT_FILE_PATH), servers(std::vector<Server>()) { }
 
-}
-
-NginxConfig::NginxConfig(const std::string &file_path): path(file_path), servers(std::vector<Server>())
-{
-
-}
+NginxConfig::NginxConfig(const std::string &file_path): path(file_path), servers(std::vector<Server>()) { }
 
 void NginxConfig::parse()
 {
@@ -42,33 +36,60 @@ void NginxConfig::generateTokens(const std::string& file)
 			++i;
 		}
 
-		temp.type = (temp.name == "location" || temp.name == "server" ? BLOCK : DIRECTIVE);
+		// temp.type = (temp == "location" || temp == "server" ? BLOCK : DIRECTIVE);
 
 		if (temp.name.size())
 			tokens.push_back(temp);
 
 		if (file[i] == ';' || file[i] == '{' || file[i] == '}')
 			tokens.push_back(Token(std::string(1, file[i])));
-
 	}
-	print(tokens, 0, "");
+	// print(tokens, 0, "");
 	std::cout << "\n";
+
+	servers.push_back(Server("first"));
+
+	parseTokens(tokens, 0, SERVER, servers[0]);
 }
+
 void NginxConfig::print(std::vector<Token>& tokens, size_t i, std::string indent)
 {
 	if (i == tokens.size())
 		return ;
-	std::cout << tokens[i].name << " ";
+	std::cout << tokens[i] << " ";
 	
-	if (tokens[i].name == "{")
+	if (tokens[i] == "{")
 		indent += "  ";
-	else if (tokens[i].name == "}" && indent[0])
+	else if (tokens[i] == "}" && indent[0])
 		indent.erase(indent.end() - 2, indent.end());
-	
-	if (tokens[i].name == ";" || tokens[i].name == "{" || tokens[i].name == "}")
+
+	if (tokens[i] == ";" || tokens[i] == "{" || tokens[i] == "}")
 		std::cout << "\n\n" << indent;
 	
 	print(tokens, ++i, indent);
+}
+
+template<typename T>
+void NginxConfig::parseTokens(const std::vector<Token>& tokens, size_t i, e_type type, T& block)
+{
+	return ;
+	/// TODO: think
+	(void) type;
+	if (i == tokens.size())
+		return ;
+
+	if (tokens[i] == "server")
+		servers.push_back(Server(std::string(i + 1, 'b')));
+	if (tokens[i] == "}")
+		return ;
+
+	if (tokens[i] == "location")
+	{
+		block.pushLocation(Location(std::string(i + 1, 'b')));
+		parseTokens(tokens, ++i, type, block.getLastLocation());
+	}
+	std::cout << tokens[i] << " " << block.name << "\n";
+	parseTokens(tokens, ++i, type, block);
 }
 
 NginxConfig::~NginxConfig()

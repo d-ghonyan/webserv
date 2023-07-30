@@ -6,7 +6,7 @@
 
 # include "Location.hpp"
 
-# define DEFAULt_PORT 80
+# define DEFAULT_PORT 80
 # define DEFAULT_ROOT "www/"
 # define DEFAULT_AUTOINDEX 0
 # define DEFAULT_SERVER_NAME ""
@@ -15,10 +15,15 @@
 class Server
 {
 private:
-	std::string serverName;
-	std::vector<Location> locations;
 public:
 	Server();
+	/// TODO: make private
+	std::string name;
+	std::string serverName;
+	std::vector<Location> locations;
+	Server(const std::string& name);
+	void pushLocation(Location l);
+	Location& getLastLocation();
 	~Server();
 };
 

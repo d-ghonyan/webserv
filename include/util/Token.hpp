@@ -5,6 +5,8 @@
 
 typedef enum 
 {
+	SERVER,
+	LOCATION,
 	DIRECTIVE,
 	BLOCK,
 	// SEMICOLON,
@@ -18,6 +20,9 @@ struct Token
 
 	Token();
 	Token(const std::string& name);
+	bool operator==(const std::string& rhs) const ;
 };
+
+std::ostream& operator<<(std::ostream& s, const Token& t);
 
 #endif // UTIL_TOKEN_HPP
