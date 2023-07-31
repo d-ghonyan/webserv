@@ -36,21 +36,15 @@ void NginxConfig::generateTokens(const std::string& file)
 			++i;
 		}
 
-		// temp.type = (temp == "location" || temp == "server" ? BLOCK : DIRECTIVE);
-
 		if (temp.name.size())
 			tokens.push_back(temp);
 
 		if (file[i] == ';' || file[i] == '{' || file[i] == '}')
 			tokens.push_back(Token(std::string(1, file[i])));
 	}
-	// print(tokens, 0, "");
 	std::cout << "\n";
 
-	// servers.push_back(Server("first"));
-
 	a(tokens);
-	// parseTokens(tokens, 0, SERVER, servers[0]);
 }
 
 void NginxConfig::print() const
@@ -115,19 +109,12 @@ void NginxConfig::a(std::vector<Token>& tokens)
 		{
 			++server_index;
 			location_index = 0;
-			location_level = 0;
 		}
 	}
 	print();
 }
 
 NginxConfig::~NginxConfig()
-{
-
-}
-
-template<typename T>
-void NginxConfig::parseTokens(const std::vector<Token>& tokens, size_t i, e_type type, T& block)
 {
 
 }
