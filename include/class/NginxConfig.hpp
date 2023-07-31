@@ -29,7 +29,7 @@ class NginxConfig
 		void generateTokens(const std::string& file);
 		template<typename T>
 		void parseTokens(const std::vector<Token>& tokens, size_t i, e_type type, T& block);
-
+		void a(std::vector<Token>& tokens);
 		~NginxConfig();
 };
 

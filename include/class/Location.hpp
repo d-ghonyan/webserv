@@ -7,15 +7,19 @@
 class Location
 {
 private:
+	std::string name;
+	// std::vector<Location> locations;
 public:
 	Location();
-	/// TODO: make private
-	std::string name;
-	std::vector<Location> locations;
+
 	Location(const std::string& name);
-	Location& getLastLocation();
-	void pushLocation(Location l);
+
+	std::string getName() const ;
+	// Location& getLastLocation();
+	// void pushLocation(Location l);
 	~Location();
 };
+
+std::ostream& operator<<(std::ostream& s, const Location& l);
 
 #endif // CLASS_LOCATION_HPP

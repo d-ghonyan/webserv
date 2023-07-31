@@ -1,25 +1,37 @@
 #include "Location.hpp"
 
-Location::Location(): name(), locations()
+Location::Location(): name()//, locations()
 {
 
 }
 
-Location::Location(const std::string& name): name(name), locations()
+Location::Location(const std::string& name): name(name)//, locations()
 {
 
 }
 
-void Location::pushLocation(Location l)
+std::string Location::getName() const
 {
-	locations.push_back(l);
+	return name;
 }
 
 
-Location& Location::getLastLocation()
+std::ostream& operator<<(std::ostream& s, const Location& l)
 {
-	return locations[locations.size() - 1];
+	s << l.getName();
+	return s;
 }
+
+// void Location::pushLocation(Location l)
+// {
+// 	locations.push_back(l);
+// }
+
+
+// Location& Location::getLastLocation()
+// {
+// 	return locations[locations.size() - 1];
+// }
 
 
 Location::~Location()

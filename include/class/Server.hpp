@@ -1,6 +1,7 @@
 #ifndef CLASS_SERVER_HPP
 # define CLASS_SERVER_HPP
 
+# include <list>
 # include <vector>
 # include <iostream>
 
@@ -14,17 +15,17 @@
 
 class Server
 {
-private:
-public:
-	Server();
-	/// TODO: make private
-	std::string name;
-	std::string serverName;
-	std::vector<Location> locations;
-	Server(const std::string& name);
-	void pushLocation(Location l);
-	Location& getLastLocation();
-	~Server();
+	private:
+		std::string name;
+		std::string serverName;
+	public:
+		Server();
+		Server(const std::string& name);
+		void pushLocation(Location l);
+		Location& getLastLocation();
+		~Server();
+	public:
+		std::vector< std::list<Location> > locations;
 };
 
 #endif // CLASS_SERVER_HPP

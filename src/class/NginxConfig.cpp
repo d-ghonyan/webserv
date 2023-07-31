@@ -47,9 +47,10 @@ void NginxConfig::generateTokens(const std::string& file)
 	// print(tokens, 0, "");
 	std::cout << "\n";
 
-	servers.push_back(Server("first"));
+	// servers.push_back(Server("first"));
 
-	parseTokens(tokens, 0, SERVER, servers[0]);
+	a(tokens);
+	// parseTokens(tokens, 0, SERVER, servers[0]);
 }
 
 void NginxConfig::print(std::vector<Token>& tokens, size_t i, std::string indent)
@@ -69,30 +70,67 @@ void NginxConfig::print(std::vector<Token>& tokens, size_t i, std::string indent
 	print(tokens, ++i, indent);
 }
 
-template<typename T>
-void NginxConfig::parseTokens(const std::vector<Token>& tokens, size_t i, e_type type, T& block)
+void NginxConfig::a(std::vector<Token>& tokens)
 {
-	return ;
-	/// TODO: think
-	(void) type;
-	if (i == tokens.size())
-		return ;
+	// ++server_index;
+	/// int server_index = -1; TODO: later
+	size_t location_level = 0;
+	size_t location_index = 0;
 
-	if (tokens[i] == "server")
-		servers.push_back(Server(std::string(i + 1, 'b')));
-	if (tokens[i] == "}")
-		return ;
-
-	if (tokens[i] == "location")
+	for (size_t i = 0; i < tokens.size(); ++i)
 	{
-		block.pushLocation(Location(std::string(i + 1, 'b')));
-		parseTokens(tokens, ++i, type, block.getLastLocation());
+		if (tokens[i] == "server")
+		{
+			servers.push_back(Server("server"));
+			++i;
+		}
+		if (tokens[i] == "location")
+		{
+			if (location_level == 0)
+			{
+				std::list<Location> l;
+
+				l.push_back(Location(tokens[++i].name));
+
+				servers[0].locations.push_back(l);
+
+				++i;
+				++location_level;
+			}
+			else
+			{
+				servers[0].locations[location_index].push_back(Location(tokens[++i].name));
+				++i;
+				++location_level;
+			}
+		}
+		if (tokens[i] == "}" && location_level != 0)
+		{
+			--location_level;
+
+			if (location_level == 0)
+				++location_index;
+		}
+		
 	}
-	std::cout << tokens[i] << " " << block.name << "\n";
-	parseTokens(tokens, ++i, type, block);
+	for (size_t i = 0; i < servers[0].locations.size(); ++i)
+	{
+		std::list<Location>::iterator it = servers[0].locations[i].begin();
+		for (; it != servers[0].locations[i].end(); ++it)
+		{
+			std::cout << *(it) << "\n";
+		}
+		std::cout << "---------\n";
+	}
 }
 
 NginxConfig::~NginxConfig()
+{
+
+}
+
+template<typename T>
+void NginxConfig::parseTokens(const std::vector<Token>& tokens, size_t i, e_type type, T& block)
 {
 
 }
