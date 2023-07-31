@@ -53,21 +53,21 @@ void NginxConfig::generateTokens(const std::string& file)
 	// parseTokens(tokens, 0, SERVER, servers[0]);
 }
 
-void NginxConfig::print(std::vector<Token>& tokens, size_t i, std::string indent)
+void NginxConfig::print() const
 {
-	if (i == tokens.size())
-		return ;
-	std::cout << tokens[i] << " ";
-	
-	if (tokens[i] == "{")
-		indent += "  ";
-	else if (tokens[i] == "}" && indent[0])
-		indent.erase(indent.end() - 2, indent.end());
-
-	if (tokens[i] == ";" || tokens[i] == "{" || tokens[i] == "}")
-		std::cout << "\n\n" << indent;
-	
-	print(tokens, ++i, indent);
+	for (size_t j = 0; j < servers.size(); ++j)
+	{
+		for (size_t i = 0; i < servers[j].locations.size(); ++i)
+		{
+			std::list<Location>::const_iterator it = servers[j].locations[i].begin();
+			for (; it != servers[j].locations[i].end(); ++it)
+			{
+				std::cout << *(it) << "\n";
+			}
+			std::cout << "---------\n";
+		}
+		std::cout << "+++++++++++++++++++++++++++++++++++++++++\n";
+	}
 }
 
 void NginxConfig::a(std::vector<Token>& tokens)
@@ -78,7 +78,6 @@ void NginxConfig::a(std::vector<Token>& tokens)
 
 	for (size_t i = 0; i < tokens.size(); ++i)
 	{
-		// std::cout << server_index << "\n";
 		if (tokens[i] == "server")
 		{
 			servers.push_back(Server("server"));
@@ -119,20 +118,7 @@ void NginxConfig::a(std::vector<Token>& tokens)
 			location_level = 0;
 		}
 	}
-
-	for (size_t j = 0; j < servers.size(); ++j)
-	{
-		for (size_t i = 0; i < servers[j].locations.size(); ++i)
-		{
-			std::list<Location>::iterator it = servers[j].locations[i].begin();
-			for (; it != servers[j].locations[i].end(); ++it)
-			{
-				std::cout << *(it) << "\n";
-			}
-			std::cout << "---------\n";
-		}
-		std::cout << "+++++++++++++++++++++++++++++++++++++++++\n";
-	}
+	print();
 }
 
 NginxConfig::~NginxConfig()

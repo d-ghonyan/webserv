@@ -24,7 +24,7 @@ class NginxConfig
 		NginxConfig(const std::string &file_path);
 
 		void parse();
-		void print(std::vector<Token>& tokens, size_t i, std::string indent);
+		void print() const ;
 
 		void generateTokens(const std::string& file);
 		template<typename T>
