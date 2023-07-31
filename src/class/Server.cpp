@@ -18,6 +18,7 @@ void Server::pushLocation(Location l)
 
 Location& Server::getLastLocation()
 {
+	// return Location("barev");
 	// return locations[locations.size() - 1];
 }
 

@@ -72,34 +72,35 @@ void NginxConfig::print(std::vector<Token>& tokens, size_t i, std::string indent
 
 void NginxConfig::a(std::vector<Token>& tokens)
 {
-	// ++server_index;
-	/// int server_index = -1; TODO: later
+	size_t server_index = 0;
 	size_t location_level = 0;
 	size_t location_index = 0;
 
 	for (size_t i = 0; i < tokens.size(); ++i)
 	{
+		// std::cout << server_index << "\n";
 		if (tokens[i] == "server")
 		{
 			servers.push_back(Server("server"));
+			++location_level;
 			++i;
 		}
 		if (tokens[i] == "location")
 		{
-			if (location_level == 0)
+			if (location_level == 1)
 			{
 				std::list<Location> l;
 
 				l.push_back(Location(tokens[++i].name));
 
-				servers[0].locations.push_back(l);
+				servers[server_index].locations.push_back(l);
 
 				++i;
 				++location_level;
 			}
 			else
 			{
-				servers[0].locations[location_index].push_back(Location(tokens[++i].name));
+				servers[server_index].locations[location_index].push_back(Location(tokens[++i].name));
 				++i;
 				++location_level;
 			}
@@ -108,19 +109,29 @@ void NginxConfig::a(std::vector<Token>& tokens)
 		{
 			--location_level;
 
-			if (location_level == 0)
+			if (location_level == 1)
 				++location_index;
 		}
-		
-	}
-	for (size_t i = 0; i < servers[0].locations.size(); ++i)
-	{
-		std::list<Location>::iterator it = servers[0].locations[i].begin();
-		for (; it != servers[0].locations[i].end(); ++it)
+		if (tokens[i] == "}" && location_level == 0)
 		{
-			std::cout << *(it) << "\n";
+			++server_index;
+			location_index = 0;
+			location_level = 0;
 		}
-		std::cout << "---------\n";
+	}
+
+	for (size_t j = 0; j < servers.size(); ++j)
+	{
+		for (size_t i = 0; i < servers[j].locations.size(); ++i)
+		{
+			std::list<Location>::iterator it = servers[j].locations[i].begin();
+			for (; it != servers[j].locations[i].end(); ++it)
+			{
+				std::cout << *(it) << "\n";
+			}
+			std::cout << "---------\n";
+		}
+		std::cout << "+++++++++++++++++++++++++++++++++++++++++\n";
 	}
 }
 
