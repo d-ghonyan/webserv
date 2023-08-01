@@ -42,9 +42,9 @@ void NginxConfig::generateTokens(const std::string& file)
 		if (file[i] == ';' || file[i] == '{' || file[i] == '}')
 			tokens.push_back(Token(std::string(1, file[i])));
 	}
-	std::cout << "\n";
 
 	a(tokens);
+	std::cout << "\n";
 }
 
 void NginxConfig::print() const
