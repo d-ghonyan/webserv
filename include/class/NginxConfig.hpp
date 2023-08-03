@@ -19,6 +19,9 @@ class NginxConfig
 	private:
 		const std::string path;
 		std::vector<Server> servers;
+		static char const * const allowed_tokens[];
+		static char const * const allowed_names_server[];
+		static char const * const allowed_names_location[];
 	public:
 		NginxConfig();
 		NginxConfig(const std::string &file_path);

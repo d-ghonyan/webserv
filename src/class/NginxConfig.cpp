@@ -4,6 +4,46 @@ NginxConfig::NginxConfig(): path(DEFAULT_FILE_PATH), servers(std::vector<Server>
 
 NginxConfig::NginxConfig(const std::string &file_path): path(file_path), servers(std::vector<Server>()) { }
 
+char const * const NginxConfig::allowed_tokens[] = {
+	"server",
+	"server_name",
+	"port",
+	"max_client_body_size",
+	"error_page",
+	"{" , "}", ";",
+	"location",
+	"autoindex",
+	"index",
+	"root",
+	"allowed_methods",
+	"internal_redirect", // which directive is http redirect?
+	"fastcgi_pass", // same for this one
+	"client_body_temp_path", // and this one
+};
+
+char const * const NginxConfig::allowed_names_server[] = {
+	"server_name",
+	"port",
+	"max_client_body_size",
+	"error_page"
+};
+
+char const * const NginxConfig::allowed_names_location[] = {
+	"location",
+	"autoindex",
+	"index",
+	"root",
+	"allowed_methods",
+	"internal_redirect", // which directive is http redirect?
+	"fastcgi_pass", // same for this one
+	"client_body_temp_path", // and this one
+};
+
+bool is_allowed(const std::string& token)
+{
+	return (1);
+}
+
 void NginxConfig::parse()
 {
 	std::ifstream conf(path.c_str());
