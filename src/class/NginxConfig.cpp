@@ -1,16 +1,20 @@
 #include "NginxConfig.hpp"
+#include <exception>
 
-NginxConfig::NginxConfig(): path(DEFAULT_FILE_PATH), servers(std::vector<Server>()) { }
 
-NginxConfig::NginxConfig(const std::string &file_path): path(file_path), servers(std::vector<Server>()) { }
+NginxConfig::NginxConfig() : path(DEFAULT_FILE_PATH), servers(std::vector<Server>()) {}
 
-char const * const NginxConfig::allowed_tokens[] = {
+NginxConfig::NginxConfig(const std::string &file_path) : path(file_path), servers(std::vector<Server>()) {}
+
+char const *const NginxConfig::allowed_tokens[] = {
 	"server",
 	"server_name",
 	"listen",
 	"max_client_body_size",
 	"error_page",
-	"{" , "}", ";",
+	"{",
+	"}",
+	";",
 	"location",
 	"autoindex",
 	"index",
@@ -21,14 +25,13 @@ char const * const NginxConfig::allowed_tokens[] = {
 	"upload_dir",
 };
 
-char const * const NginxConfig::allowed_names_server[] = {
+char const *const NginxConfig::allowed_names_server[] = {
 	"server_name",
 	"listen",
 	"max_client_body_size",
-	"error_page"
-};
+	"error_page"};
 
-char const * const NginxConfig::allowed_names_location[] = {
+char const *const NginxConfig::allowed_names_location[] = {
 	"location",
 	"autoindex",
 	"index",
@@ -39,8 +42,9 @@ char const * const NginxConfig::allowed_names_location[] = {
 	"upload_dir",
 };
 
-bool is_allowed(const std::string& token)
+bool is_allowed(const std::string &token)
 {
+	(void) token;
 	return (1);
 }
 
@@ -55,11 +59,13 @@ void NginxConfig::parse()
 	sstream << conf.rdbuf();
 
 	std::string file(sstream.str());
-
+	
 	generateTokens(file);
 }
 
-void NginxConfig::generateTokens(const std::string& file)
+
+
+void NginxConfig::generateTokens(const std::string &file)
 {
 	std::vector<std::string> tokens;
 
@@ -68,7 +74,10 @@ void NginxConfig::generateTokens(const std::string& file)
 	{
 		std::string temp;
 
-		while (file[i] && std::isspace(file[i])) { ++i; }
+		while (file[i] && std::isspace(file[i]))
+		{
+			++i;
+		}
 
 		while (file[i] && !std::isspace(file[i]) && file[i] != ';' && file[i] != '{' && file[i] != '}')
 		{
@@ -82,9 +91,25 @@ void NginxConfig::generateTokens(const std::string& file)
 		if (file[i] == ';' || file[i] == '{' || file[i] == '}')
 			tokens.push_back(std::string(1, file[i]));
 	}
+	for (size_t i = 0; i < tokens.size(); i++)
+	{
+		std::cout << "\'" << tokens[i] << "\'";
+	}
+	SeparateServerBlocksFromFile(tokens);
 
-	parseLocations(tokens);
+	// parseLocations(tokens);
 	std::cout << "\n";
+}
+
+void	NginxConfig::SeparateServerBlocksFromFile(Tokens tokens)
+{
+	if (tokens.size() == 0)
+		throw std::runtime_error("Empty file\n");
+	if (tokens[0] == "server" && tokens[1] == "{")
+	{
+		//start stack and fill server blocks with tokens of seperated servers
+		//need to fix it and make it more beautifull and  readable
+	}
 }
 
 void NginxConfig::print() const
@@ -104,7 +129,7 @@ void NginxConfig::print() const
 	}
 }
 
-void NginxConfig::parseLocations(std::vector<std::string>& tokens)
+void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 {
 	size_t server_index = 0;
 	size_t location_level = 0;
@@ -156,5 +181,4 @@ void NginxConfig::parseLocations(std::vector<std::string>& tokens)
 
 NginxConfig::~NginxConfig()
 {
-
 }
