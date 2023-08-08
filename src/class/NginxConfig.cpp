@@ -83,11 +83,6 @@ void NginxConfig::generateTokens(const std::string& file)
 			tokens.push_back(std::string(1, file[i]));
 	}
 
-	// for (size_t i = 0; i < tokens.size(); i++)
-	// {
-	// 	std::cout << tokens[i] << " ";
-	// }
-
 	parseLocations(tokens);
 	std::cout << "\n";
 }
