@@ -16,9 +16,9 @@ char const * const NginxConfig::allowed_tokens[] = {
 	"index",
 	"root",
 	"allowed_methods",
-	"internal_redirect", // which directive is http redirect?
-	"fastcgi_pass", // same for this one
-	"client_body_temp_path", // and this one
+	"return",
+	"cgi",
+	"upload_dir",
 };
 
 char const * const NginxConfig::allowed_names_server[] = {
@@ -34,9 +34,9 @@ char const * const NginxConfig::allowed_names_location[] = {
 	"index",
 	"root",
 	"allowed_methods",
-	"internal_redirect", // which directive is http redirect?
-	"fastcgi_pass", // same for this one
-	"client_body_temp_path", // and this one
+	"return",
+	"cgi",
+	"upload_dir",
 };
 
 bool is_allowed(const std::string& token)
