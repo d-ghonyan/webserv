@@ -23,7 +23,7 @@ char const * const NginxConfig::allowed_tokens[] = {
 
 char const * const NginxConfig::allowed_names_server[] = {
 	"server_name",
-	"listen,
+	"listen",
 	"max_client_body_size",
 	"error_page"
 };
