@@ -7,7 +7,7 @@ NginxConfig::NginxConfig(const std::string &file_path): path(file_path), servers
 char const * const NginxConfig::allowed_tokens[] = {
 	"server",
 	"server_name",
-	"port",
+	"listen",
 	"max_client_body_size",
 	"error_page",
 	"{" , "}", ";",
@@ -23,7 +23,7 @@ char const * const NginxConfig::allowed_tokens[] = {
 
 char const * const NginxConfig::allowed_names_server[] = {
 	"server_name",
-	"port",
+	"listen,
 	"max_client_body_size",
 	"error_page"
 };
@@ -82,6 +82,11 @@ void NginxConfig::generateTokens(const std::string& file)
 		if (file[i] == ';' || file[i] == '{' || file[i] == '}')
 			tokens.push_back(std::string(1, file[i]));
 	}
+
+	// for (size_t i = 0; i < tokens.size(); i++)
+	// {
+	// 	std::cout << tokens[i] << " ";
+	// }
 
 	parseLocations(tokens);
 	std::cout << "\n";
