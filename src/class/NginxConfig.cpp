@@ -61,29 +61,29 @@ void NginxConfig::parse()
 
 void NginxConfig::generateTokens(const std::string& file)
 {
-	std::vector<Token> tokens;
+	std::vector<std::string> tokens;
 
 	std::cout << "\n";
 	for (size_t i = 0; i < file.size(); ++i)
 	{
-		Token temp;
+		std::string temp;
 
 		while (file[i] && std::isspace(file[i])) { ++i; }
 
 		while (file[i] && !std::isspace(file[i]) && file[i] != ';' && file[i] != '{' && file[i] != '}')
 		{
-			temp.name.push_back(file[i]);
+			temp.push_back(file[i]);
 			++i;
 		}
 
-		if (temp.name.size())
+		if (temp.size())
 			tokens.push_back(temp);
 
 		if (file[i] == ';' || file[i] == '{' || file[i] == '}')
-			tokens.push_back(Token(std::string(1, file[i])));
+			tokens.push_back(std::string(1, file[i]));
 	}
 
-	a(tokens);
+	parseLocations(tokens);
 	std::cout << "\n";
 }
 
@@ -104,7 +104,7 @@ void NginxConfig::print() const
 	}
 }
 
-void NginxConfig::a(std::vector<Token>& tokens)
+void NginxConfig::parseLocations(std::vector<std::string>& tokens)
 {
 	size_t server_index = 0;
 	size_t location_level = 0;
@@ -124,7 +124,7 @@ void NginxConfig::a(std::vector<Token>& tokens)
 			{
 				std::list<Location> l;
 
-				l.push_back(Location(tokens[++i].name));
+				l.push_back(Location(tokens[++i]));
 
 				servers[server_index].locations.push_back(l);
 
@@ -133,7 +133,7 @@ void NginxConfig::a(std::vector<Token>& tokens)
 			}
 			else
 			{
-				servers[server_index].locations[location_index].push_back(Location(tokens[++i].name));
+				servers[server_index].locations[location_index].push_back(Location(tokens[++i]));
 				++i;
 				++location_level;
 			}
