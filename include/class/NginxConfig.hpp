@@ -14,13 +14,31 @@
 
 #define DEFAULT_FILE_PATH "conf.d/webserv.conf"
 
+template<typename T>
+T	next(T it, typename std::iterator_traits<T>::difference_type n = 1) 
+{
+    std::advance(it, n);
+    return it;
+}
+
+template<typename T>
+T	prev(T it, typename std::iterator_traits<T>::difference_type n = -1) 
+{
+    std::advance(it, n);
+    return it;
+}
+
 typedef std::vector<std::string> Tokens;
 typedef std::vector<Tokens> BlocksOfServerTokens;
 
 class NginxConfig
 {
   public: //Edgar
-	void	SeparateServerBlocksFromFile(Tokens);
+	void					SeparateServerBlocksFromFile(const Tokens &tokens);
+	void 					ValidateTokens(const Tokens &tokens);
+	bool					isNotBalancedBraces(const Tokens &tokens);
+	Tokens::const_iterator	getClosingBraceIterator(Tokens::const_iterator startIt);
+
 
   private: //Edgar
 	BlocksOfServerTokens ServerBlocks;

@@ -1,5 +1,6 @@
 #include "NginxConfig.hpp"
 #include <exception>
+#include <stack>
 
 
 NginxConfig::NginxConfig() : path(DEFAULT_FILE_PATH), servers(std::vector<Server>()) {}
@@ -91,25 +92,101 @@ void NginxConfig::generateTokens(const std::string &file)
 		if (file[i] == ';' || file[i] == '{' || file[i] == '}')
 			tokens.push_back(std::string(1, file[i]));
 	}
+	ValidateTokens(tokens);
+	SeparateServerBlocksFromFile(tokens);
+
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
-		std::cout << "\'" << tokens[i] << "\'";
+		std::cout << " \'" << tokens[i] << "\' ";
 	}
-	SeparateServerBlocksFromFile(tokens);
 
 	// parseLocations(tokens);
 	std::cout << "\n";
 }
 
-void	NginxConfig::SeparateServerBlocksFromFile(Tokens tokens)
+bool	NginxConfig::isNotBalancedBraces(const Tokens &tokens)
+{
+	std::stack<std::string> braceStack;
+
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        const std::string& token = tokens[i];
+        
+        for (size_t j = 0; j < token.length(); ++j) 
+		{
+            if (token[j] == '{') 
+			{
+                braceStack.push("{");
+            } 
+			else if (token[j] == '}') 
+			{
+                if (braceStack.empty()) 
+				{
+                    return true; 
+                }
+                braceStack.pop();
+            }
+        }
+    }
+
+    return !braceStack.empty();
+}
+
+
+void	NginxConfig::ValidateTokens(const Tokens &tokens)
 {
 	if (tokens.size() == 0)
 		throw std::runtime_error("Empty file\n");
-	if (tokens[0] == "server" && tokens[1] == "{")
+	if (isNotBalancedBraces(tokens))
+		throw std::runtime_error("Brace error\n");
+
+
+}
+
+Tokens::const_iterator	NginxConfig::getClosingBraceIterator(Tokens::const_iterator startIt, Tokens::const_iterator endIt)
+{
+	std::stack<std::string>	braceStack;
+	for (; startIt != endIt; ++startIt) 
 	{
-		//start stack and fill server blocks with tokens of seperated servers
-		//need to fix it and make it more beautifull and  readable
+		if (*startIt == "{") 
+		{
+			braceStack.push("{");
+		} 
+		else if (*startIt == "}") 
+		{
+			braceStack.pop();
+			if (braceStack.empty()) 
+			{
+				//todooo
+				return true; 
+			}
+		}
 	}
+
+}
+
+void	NginxConfig::SeparateServerBlocksFromFile(const Tokens &tokens)
+{
+	
+	
+	for(Tokens::const_iterator it = tokens.begin(); it !=  tokens.end();)
+	{
+		it = std::find(tokens.begin(), tokens.end(), "server");
+		if (it == tokens.end())
+			throw std::runtime_error("There is no server block\n");					
+
+		if (*(it + 1) != "{")
+			throw std::runtime_error("server block should start with {\n");	
+		Tokens::const_iterator	end = getClosingBraceIterator(++it, tokens.end());	
+
+
+
+	}
+	
+	// if (tokens[0] == "server" && tokens[1] == "{")
+	// {
+	// 	//start stack and fill server blocks with tokens of seperated servers
+	// 	//need to fix it and make it more beautifull and  readable
+	// }
 }
 
 void NginxConfig::print() const
