@@ -16,7 +16,7 @@ class Server
 private:
 	std::string max_body_size;
 	std::vector<std::string> listen;
-	std::vector<std::string> error_pages;
+	std::map<std::string, std::string> error_pages;
 	std::vector<std::string> server_names;
 
 public:
@@ -27,7 +27,10 @@ public:
 	void pushListen(const std::string& l);
 	void setMaxBodySize(const std::string& l);
 	void pushServerName(const std::string& server_name);
-	void pushErrorPage(const std::string& error_page);
+	void pushErrorPage(const std::string& error_code, const std::string& error_page);
+
+public:
+	std::string getMaxBodySize() const ;
 
 public:
 	void print_everything();
