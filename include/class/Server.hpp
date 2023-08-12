@@ -37,7 +37,7 @@ public:
 	void printVectors(const std::vector<std::string>& vec);
 
 public:
-	std::vector< std::map<Location, std::string> > locations;
+	std::map<std::string, Location> locations;
 };
 
 #endif // CLASS_SERVER_HPP

@@ -55,6 +55,6 @@ public:
 
 std::ostream& operator<<(std::ostream& s, const Location& l);
 
-typedef std::map<Location, std::string> LocationMap;
+typedef std::map<std::string, Location> LocationMap;
 
 #endif // CLASS_LOCATION_HPP

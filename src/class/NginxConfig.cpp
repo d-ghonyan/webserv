@@ -1,6 +1,4 @@
 #include "NginxConfig.hpp"
-#include <exception>
-#include <stack>
 
 NginxConfig::NginxConfig() : path(DEFAULT_FILE_PATH), servers(std::vector<Server>()) {}
 
@@ -122,8 +120,6 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 
 			if (i == tokens.size() || tokens[i] != "{")
 				throw std::runtime_error("invalid file");
-
-			// ++i;
 		}
 		else if (tokens[i] == "server_name")
 			serverName(tokens, server_index, location_level, i);
@@ -134,13 +130,9 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		else if (tokens[i] == "error_page")
 			errorPage(tokens, server_index, location_level, i);
 		else if (contains(single_value_directives_location, tokens[i]))
-			setProperties(const_cast<Location&>(servers[server_index].locations[location_index]
-				.find(current_location.back())->first),
-				tokens,location_level, i);
+			setProperties(servers[server_index].locations[current_location.back()], tokens,location_level, i);
 		else if (contains(array_value_directives_location, tokens[i]))
-			setVectors(const_cast<Location&>(servers[server_index].locations[location_index]
-				.find(current_location.back())->first),
-				tokens,location_level, i);
+			setVectors(servers[server_index].locations[current_location.back()], tokens,location_level, i);
 		else if (tokens[i] == "location")
 		{
 			if (tokens[i + 1] == "{" || tokens[i + 2] != "{")
@@ -152,9 +144,7 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 				++i;
 				current_location.push_back(tokens[i]);
 
-				m.insert(std::make_pair(Location(tokens[i]), tokens[i]));
-
-				servers[server_index].locations.push_back(m);
+				servers[server_index].locations.insert(std::make_pair(tokens[i], Location(tokens[i])));
 
 				++i;
 				++location_level;
@@ -162,8 +152,8 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			else
 			{
 				++i;
-				servers[server_index].locations[location_index]
-					.insert(std::make_pair(Location(tokens[i], current_location.back()), tokens[i]));
+				servers[server_index].locations
+					.insert(std::make_pair(tokens[i], Location(tokens[i], current_location.back())));//new location
 				current_location.push_back(tokens[i]);
 				++i;
 				++location_level;
@@ -206,15 +196,15 @@ void NginxConfig::print() const
 {
 	for (size_t j = 0; j < servers.size(); ++j)
 	{
-		for (size_t i = 0; i < servers[j].locations.size(); ++i)
-		{
-			LocationMap::const_iterator it = servers[j].locations[i].begin();
-			for (; it != servers[j].locations[i].end(); ++it)
+		// for (size_t i = 0; i < servers[j].locations.size(); ++i)
+		// {
+			LocationMap::const_iterator it = servers[j].locations.begin();
+			for (; it != servers[j].locations.end(); ++it)
 			{
-				std::cout << it->first << "\n";
+				std::cout << it->second << "\n";
 			}
 			std::cout << "---------\n";
-		}
+		// }
 		std::cout << "+++++++++++++++++++++++++++++++++++++++++\n";
 	}
 }

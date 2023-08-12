@@ -42,13 +42,10 @@ void Server::print_everything()
 	std::cout << "Max body size: " << max_body_size << "\n";
 	std::cout << "Locations: \n------\n";
 
-	for (size_t i = 0; i < locations.size(); ++i)
+	for (LocationMap::iterator it = locations.begin(); it != locations.end(); ++it)
 	{
-		for (LocationMap::iterator it = locations[i].begin(); it != locations[i].end(); ++it)
-		{
-			it->first.printEverything("  ");
-			std::cout << "++++++++++++++\n\n";
-		}
+		it->second.printEverything("  ");
+		std::cout << "++++++++++++++\n\n";
 	}
 	std::cout << "--------\n";
 }

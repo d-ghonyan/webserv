@@ -73,6 +73,9 @@
 		"mutex": "cpp",
 		"ratio": "cpp",
 		"stack": "cpp",
-		"numbers": "cpp"
-	}
+		"numbers": "cpp",
+		"__tree": "cpp",
+		"map": "cpp"
+	},
+	"C_Cpp.errorSquiggles": "Disabled"
 }
