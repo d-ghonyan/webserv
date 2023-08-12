@@ -2,51 +2,34 @@
 #include <exception>
 #include <stack>
 
-
 NginxConfig::NginxConfig() : path(DEFAULT_FILE_PATH), servers(std::vector<Server>()) {}
 
 NginxConfig::NginxConfig(const std::string &file_path) : path(file_path), servers(std::vector<Server>()) {}
 
-char const *const NginxConfig::allowed_tokens[] = {
-	"server",
-	"server_name",
-	"listen",
-	"max_client_body_size",
-	"error_page",
-	"{",
-	"}",
-	";",
-	"location",
+char const * const NginxConfig::single_value_directives_location[] = {
 	"autoindex",
-	"index",
 	"root",
-	"allowed_methods",
 	"return",
 	"cgi",
 	"upload_dir",
+	NULL,
 };
 
-char const *const NginxConfig::allowed_names_server[] = {
-	"server_name",
-	"listen",
-	"max_client_body_size",
-	"error_page"};
-
-char const *const NginxConfig::allowed_names_location[] = {
-	"location",
-	"autoindex",
+char const * const NginxConfig::array_value_directives_location[] = {
 	"index",
-	"root",
-	"allowed_methods",
-	"return",
-	"cgi",
-	"upload_dir",
+	"allow_methods",
+	NULL,
 };
 
-bool is_allowed(const std::string &token)
+bool NginxConfig::contains(char const * const allowed[], const std::string &token)
 {
-	(void) token;
-	return (1);
+	for (size_t i = 0; allowed[i]; ++i)
+	{
+		if (token == allowed[i])
+			return true;
+	}
+
+	return (false);
 }
 
 void NginxConfig::parse()
@@ -63,8 +46,6 @@ void NginxConfig::parse()
 	
 	generateTokens(file);
 }
-
-
 
 void NginxConfig::generateTokens(const std::string &file)
 {
@@ -92,118 +73,29 @@ void NginxConfig::generateTokens(const std::string &file)
 		if (file[i] == ';' || file[i] == '{' || file[i] == '}')
 			tokens.push_back(std::string(1, file[i]));
 	}
-	ValidateTokens(tokens);
-	SeparateServerBlocksFromFile(tokens);
 
-	for (size_t i = 0; i < tokens.size(); i++)
-	{
-		std::cout << " \'" << tokens[i] << "\' ";
-	}
+	check_braces(tokens);
 
-	// parseLocations(tokens);
+	parseLocations(tokens);
 	std::cout << "\n";
 }
 
-bool	NginxConfig::isNotBalancedBraces(const Tokens &tokens)
+void NginxConfig::check_braces(const std::vector<std::string> tokens)
 {
-	std::stack<std::string> braceStack;
+	std::stack<int> br;
 
-    for (size_t i = 0; i < tokens.size(); ++i) {
-        const std::string& token = tokens[i];
-        
-        for (size_t j = 0; j < token.length(); ++j) 
-		{
-            if (token[j] == '{') 
-			{
-                braceStack.push("{");
-            } 
-			else if (token[j] == '}') 
-			{
-                if (braceStack.empty()) 
-				{
-                    return true; 
-                }
-                braceStack.pop();
-            }
-        }
-    }
-
-    return !braceStack.empty();
-}
-
-
-void	NginxConfig::ValidateTokens(const Tokens &tokens)
-{
-	if (tokens.size() == 0)
-		throw std::runtime_error("Empty file\n");
-	if (isNotBalancedBraces(tokens))
-		throw std::runtime_error("Brace error\n");
-
-
-}
-
-Tokens::const_iterator	NginxConfig::getClosingBraceIterator(Tokens::const_iterator startIt, Tokens::const_iterator endIt)
-{
-	std::stack<std::string>	braceStack;
-	for (; startIt != endIt; ++startIt) 
+	for (size_t i = 0; i < tokens.size(); ++i)
 	{
-		if (*startIt == "{") 
+		if (tokens[i] == "{")
+			br.push(0);
+		else if (tokens[i] == "}")
 		{
-			braceStack.push("{");
-		} 
-		else if (*startIt == "}") 
-		{
-			braceStack.pop();
-			if (braceStack.empty()) 
-			{
-				//todooo
-				return true; 
-			}
+			if (br.size() == 0)
+				throw std::runtime_error("wrong braces");
+			br.pop();
 		}
 	}
-
-}
-
-void	NginxConfig::SeparateServerBlocksFromFile(const Tokens &tokens)
-{
-	
-	
-	for(Tokens::const_iterator it = tokens.begin(); it !=  tokens.end();)
-	{
-		it = std::find(tokens.begin(), tokens.end(), "server");
-		if (it == tokens.end())
-			throw std::runtime_error("There is no server block\n");					
-
-		if (*(it + 1) != "{")
-			throw std::runtime_error("server block should start with {\n");	
-		Tokens::const_iterator	end = getClosingBraceIterator(++it, tokens.end());	
-
-
-
-	}
-	
-	// if (tokens[0] == "server" && tokens[1] == "{")
-	// {
-	// 	//start stack and fill server blocks with tokens of seperated servers
-	// 	//need to fix it and make it more beautifull and  readable
-	// }
-}
-
-void NginxConfig::print() const
-{
-	for (size_t j = 0; j < servers.size(); ++j)
-	{
-		for (size_t i = 0; i < servers[j].locations.size(); ++i)
-		{
-			std::list<Location>::const_iterator it = servers[j].locations[i].begin();
-			for (; it != servers[j].locations[i].end(); ++it)
-			{
-				std::cout << *(it) << "\n";
-			}
-			std::cout << "---------\n";
-		}
-		std::cout << "+++++++++++++++++++++++++++++++++++++++++\n";
-	}
+	if (br.size() != 0) throw std::runtime_error("wrong braces");
 }
 
 void NginxConfig::parseLocations(std::vector<std::string> &tokens)
@@ -212,38 +104,83 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 	size_t location_level = 0;
 	size_t location_index = 0;
 
+	std::vector<std::string> current_location;
+
 	for (size_t i = 0; i < tokens.size(); ++i)
 	{
+		if (location_level == 0 && tokens[i] != "server")
+		{
+			throw std::runtime_error("expected server block, found " + tokens[i]);
+		}
+
 		if (tokens[i] == "server")
 		{
-			servers.push_back(Server("server"));
+			servers.push_back(Server());
 			++location_level;
+
 			++i;
+
+			if (i == tokens.size() || tokens[i] != "{")
+				throw std::runtime_error("invalid file");
+
+			// ++i;
 		}
-		if (tokens[i] == "location")
+		else if (tokens[i] == "server_name")
+			serverName(tokens, server_index, location_level, i);
+		else if (tokens[i] == "listen")
+			listen(tokens, server_index, location_level, i);
+		else if (tokens[i] == "client_max_body_size")
+			maxBodySize(tokens, server_index, location_level, i);
+		else if (tokens[i] == "error_page")
+			errorPage(tokens, server_index, location_level, i);
+		else if (contains(single_value_directives_location, tokens[i]))
+			setProperties(const_cast<Location&>(servers[server_index].locations[location_index]
+				.find(current_location.back())->first),
+				tokens,location_level, i);
+		else if (contains(array_value_directives_location, tokens[i]))
+			setVectors(const_cast<Location&>(servers[server_index].locations[location_index]
+				.find(current_location.back())->first),
+				tokens,location_level, i);
+		else if (tokens[i] == "location")
 		{
+			if (tokens[i + 1] == "{" || tokens[i + 2] != "{")
+				throw std::runtime_error("invalid location directive");
 			if (location_level == 1)
 			{
-				std::list<Location> l;
+				LocationMap m;
 
-				l.push_back(Location(tokens[++i]));
+				++i;
+				current_location.push_back(tokens[i]);
 
-				servers[server_index].locations.push_back(l);
+				m.insert(std::make_pair(Location(tokens[i]), tokens[i]));
+
+				servers[server_index].locations.push_back(m);
 
 				++i;
 				++location_level;
 			}
 			else
 			{
-				servers[server_index].locations[location_index].push_back(Location(tokens[++i]));
+				++i;
+				servers[server_index].locations[location_index]
+					.insert(std::make_pair(Location(tokens[i], current_location.back()), tokens[i]));
+				current_location.push_back(tokens[i]);
 				++i;
 				++location_level;
 			}
 		}
+		else
+		{
+			if (tokens[i] != "}")
+				throw std::runtime_error("invalid directive: " + tokens[i]);
+			// std::cout << tokens[i] << " " << tokens[i - 1] << "\n";
+		}
+;
 		if (tokens[i] == "}" && location_level != 0)
 		{
 			--location_level;
 
+			if (current_location.size()) current_location.pop_back();
 			if (location_level == 1)
 				++location_index;
 		}
@@ -253,9 +190,31 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			location_index = 0;
 		}
 	}
+
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		servers[i].print_everything();
+		std::cout << "===================\n";
+	}
+
 	print();
 }
 
-NginxConfig::~NginxConfig()
+NginxConfig::~NginxConfig() { }
+
+void NginxConfig::print() const
 {
+	for (size_t j = 0; j < servers.size(); ++j)
+	{
+		for (size_t i = 0; i < servers[j].locations.size(); ++i)
+		{
+			LocationMap::const_iterator it = servers[j].locations[i].begin();
+			for (; it != servers[j].locations[i].end(); ++it)
+			{
+				std::cout << it->first << "\n";
+			}
+			std::cout << "---------\n";
+		}
+		std::cout << "+++++++++++++++++++++++++++++++++++++++++\n";
+	}
 }

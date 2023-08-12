@@ -1,66 +1,58 @@
 #ifndef CLASS_NGINX_CONFIG_HPP
 
-#define CLASS_NGINX_CONFIG_HPP
+# define CLASS_NGINX_CONFIG_HPP
 
-#include <vector>
-#include <string.h>
-#include <errno.h>
-#include <fstream>
-#include <sstream>
-#include <iostream>
+# include <vector>
+# include <fstream>
+# include <sstream>
+# include <iostream>
+# include <algorithm>
 
-#include "Server.hpp"
-#include "Token.hpp"
+# include <errno.h>
+# include <string.h>
 
-#define DEFAULT_FILE_PATH "conf.d/webserv.conf"
+# include "Token.hpp"
+# include "Server.hpp"
 
-template<typename T>
-T	next(T it, typename std::iterator_traits<T>::difference_type n = 1) 
-{
-    std::advance(it, n);
-    return it;
-}
-
-template<typename T>
-T	prev(T it, typename std::iterator_traits<T>::difference_type n = -1) 
-{
-    std::advance(it, n);
-    return it;
-}
-
-typedef std::vector<std::string> Tokens;
-typedef std::vector<Tokens> BlocksOfServerTokens;
+# define DEFAULT_FILE_PATH "conf.d/webserv.conf"
 
 class NginxConfig
 {
-  public: //Edgar
-	void					SeparateServerBlocksFromFile(const Tokens &tokens);
-	void 					ValidateTokens(const Tokens &tokens);
-	bool					isNotBalancedBraces(const Tokens &tokens);
-	Tokens::const_iterator	getClosingBraceIterator(Tokens::const_iterator startIt);
-
-
-  private: //Edgar
-	BlocksOfServerTokens ServerBlocks;
-
-  private:
+private:
 	const std::string path;
 	std::vector<Server> servers;
-	static char const *const allowed_tokens[];
-	static char const *const allowed_names_server[];
-	static char const *const allowed_names_location[];
 
-  public:
+private:
+	static char const * const allowed_tokens[];
+	static char const * const allowed_names_server[];
+	static char const * const allowed_names_location[];
+	static char const * const array_value_directives_location[];
+	static char const * const single_value_directives_location[];
+
+	bool contains(char const * const allowed_tokens[], const std::string& token);
+
+private:
+	void generateTokens(const std::string &file);
+	void parseLocations(std::vector<std::string> &tokens);
+	void check_braces(const std::vector<std::string> tokens);
+
+private: // utils
+	void listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
+	void errorPage(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
+	void serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
+	void maxBodySize(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
+
+	void setter(Location& location, const std::string& name, const std::string& val);
+	void setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& location_level, size_t& i);
+	void setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& location_level, size_t& i);
+
+public:
 	NginxConfig();
 	NginxConfig(const std::string &file_path);
 
 	void parse();
 	void print() const;
 
-	void generateTokens(const std::string &file);
-	template <typename T>
-	void parseTokens(const std::vector<Token> &tokens, size_t i, e_type type, T &block);
-	void parseLocations(std::vector<std::string> &tokens);
 	~NginxConfig();
 };
 
