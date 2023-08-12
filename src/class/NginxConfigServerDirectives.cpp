@@ -64,7 +64,7 @@ void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& serv
 		++count;
 	}
 
-	i = count;
+	i = count + 1;
 }
 
 void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)

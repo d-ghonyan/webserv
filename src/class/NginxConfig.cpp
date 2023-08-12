@@ -112,6 +112,7 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		{
 			throw std::runtime_error("expected server block, found " + tokens[i]);
 		}
+
 		if (tokens[i] == "server")
 		{
 			servers.push_back(Server());
@@ -122,9 +123,9 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			if (i == tokens.size() || tokens[i] != "{")
 				throw std::runtime_error("invalid file");
 
-			++i;
+			// ++i;
 		}
-		if (tokens[i] == "server_name")
+		else if (tokens[i] == "server_name")
 			serverName(tokens, server_index, location_level, i);
 		else if (tokens[i] == "listen")
 			listen(tokens, server_index, location_level, i);
@@ -140,8 +141,10 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			setVectors(const_cast<Location&>(servers[server_index].locations[location_index]
 				.find(current_location.back())->first),
 				tokens,location_level, i);
-		if (tokens[i] == "location")
+		else if (tokens[i] == "location")
 		{
+			if (tokens[i + 1] == "{" || tokens[i + 2] != "{")
+				throw std::runtime_error("invalid location directive");
 			if (location_level == 1)
 			{
 				LocationMap m;
@@ -166,6 +169,13 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 				++location_level;
 			}
 		}
+		else
+		{
+			if (tokens[i] != "}")
+				throw std::runtime_error("invalid directive: " + tokens[i]);
+			// std::cout << tokens[i] << " " << tokens[i - 1] << "\n";
+		}
+;
 		if (tokens[i] == "}" && location_level != 0)
 		{
 			--location_level;
@@ -208,91 +218,3 @@ void NginxConfig::print() const
 		std::cout << "+++++++++++++++++++++++++++++++++++++++++\n";
 	}
 }
-
-// char const * const NginxConfig::allowed_tokens[] = {
-// 	"server",
-// 	"server_name",
-// 	"listen",
-// 	"max_client_body_size",
-// 	"error_page",
-// 	"{", "}", ";",
-// 	"location",
-// 	"autoindex",
-// 	"index",
-// 	"root",
-// 	"allowed_methods",
-// 	"return",
-// 	"cgi",
-// 	"upload_dir",
-// 	NULL,
-// };
-
-// char const * const NginxConfig::allowed_names_server[] = {
-// 	"server_name",
-// 	"listen",
-// 	"client_max_body_size",
-// 	"error_page",
-// 	NULL,
-// };
-
-// char const * const NginxConfig::allowed_names_location[] = {
-// 	"location",
-// 	"autoindex",
-// 	"index",
-// 	"root",
-// 	"allowed_methods",
-// 	"return",
-// 	"cgi",
-// 	"upload_dir",
-// 	NULL,
-// };
-
-// void	NginxConfig::validateTokens(const std::vector<std::string> &tokens)
-// {
-// 	int in_file = 1;
-// 	int in_server = 0;
-// 	int in_location = 0;
-
-// 	for (size_t i = 0; i < tokens.size(); ++i)
-// 	{
-// 		if (in_file && tokens[i] != "server")
-// 			throw std::runtime_error("invalid directive");
-// 		if (tokens[i] == "server")
-// 		{
-// 			in_file = 0;
-// 			in_server = 1;
-// 			++i;
-
-// 			if (i == tokens.size() || tokens[i] != "{")
-// 				throw std::runtime_error("invalid file");
-			
-// 			++i;
-
-// 			if (tokens[i] == "server_name")
-// 			{
-				
-// 			}
-// 			else if (tokens[i] == "listen")
-// 			{
-
-// 			}
-// 			else if (tokens[i] == "max_client_body_size")
-// 			{
-
-// 			}
-// 			else if (tokens[i] == "error_page")
-// 			{
-
-// 			}
-// 			else if (tokens[i] == "location")
-// 			{
-
-// 			}
-// 			/*
-// 				"server_name",
-// 				"listen",	
-// 				"max_client_body_size",
-// 				"error_page",*/
-// 		}
-// 	}
-// }
