@@ -129,8 +129,8 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			maxBodySize(tokens, server_index, location_level, i);
 		else if (tokens[i] == "error_page")
 			errorPage(tokens, server_index, location_level, i);
-		else if (contains(single_value_directives_location, tokens[i]))
-			setProperties(servers[server_index].locations[current_location.back()], tokens,location_level, i);
+		else if (contains(single_value_directives_location, tokens[i])) // segfault on root
+ 			setProperties(servers[server_index].locations[current_location.back()], tokens,location_level, i);
 		else if (contains(array_value_directives_location, tokens[i]))
 			setVectors(servers[server_index].locations[current_location.back()], tokens,location_level, i);
 		else if (tokens[i] == "location")
@@ -144,8 +144,8 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 
 				////////////////////////////////////
 				///TODO
-				// if (alreadyExistsLocation(tokens[i], server_index))
-				// 	throw (std::runtime_error("Dublicate location ara"));
+				if (servers[server_index].locations.find(tokens[i]) != servers[server_index].locations.end())
+					throw (std::runtime_error("Dublicate location ara"));
 				
 				
 				std::cout << "------------------------->>" << tokens[i] << ">>\n";
@@ -162,8 +162,7 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 				std::cout << "---------------------------------->>" << current_location.back()<< ">>\n";
 				if (isNotContinueOfPrevious(tokens[i], current_location.back()))
 				{
-					std::string	err_msg = std::string(std::string("outside location ") + std::string(tokens[i]));
-					throw (std::runtime_error(err_msg.c_str()));
+					throw (std::runtime_error("outside location " + tokens[i]));
 				}
 				servers[server_index].locations.insert(std::make_pair(tokens[i], Location(tokens[i], current_location.back())));
 				current_location.push_back(tokens[i]);
