@@ -11,6 +11,8 @@
 # define DEFAULT_SERVER_NAME ""
 # define DEFAULT_MAX_BODY_SIZE 1024
 
+typedef std::string	Route;
+
 class Server
 {
 private:
@@ -37,7 +39,7 @@ public:
 	void printVectors(const std::vector<std::string>& vec);
 
 public:
-	std::map<std::string, Location> locations;
+	std::map<Route, Location> locations;
 };
 
 #endif // CLASS_SERVER_HPP

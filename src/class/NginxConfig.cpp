@@ -139,11 +139,17 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 				throw std::runtime_error("invalid location directive");
 			if (location_level == 1)
 			{
-				LocationMap m;
-
 				++i;
 				current_location.push_back(tokens[i]);
 
+				////////////////////////////////////
+				///TODO
+				// if (alreadyExistsLocation(tokens[i], server_index))
+				// 	throw (std::runtime_error("Dublicate location ara"));
+				
+				
+				std::cout << "------------------------->>" << tokens[i] << ">>\n";
+				
 				servers[server_index].locations.insert(std::make_pair(tokens[i], Location(tokens[i])));
 
 				++i;
@@ -152,8 +158,14 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			else
 			{
 				++i;
-				servers[server_index].locations
-					.insert(std::make_pair(tokens[i], Location(tokens[i], current_location.back())));//new location
+				std::cout << "------------------------->>" << tokens[i] << ">>\n";
+				std::cout << "---------------------------------->>" << current_location.back()<< ">>\n";
+				if (isNotContinueOfPrevious(tokens[i], current_location.back()))
+				{
+					std::string	err_msg = std::string(std::string("outside location ") + std::string(tokens[i]));
+					throw (std::runtime_error(err_msg.c_str()));
+				}
+				servers[server_index].locations.insert(std::make_pair(tokens[i], Location(tokens[i], current_location.back())));
 				current_location.push_back(tokens[i]);
 				++i;
 				++location_level;
@@ -190,21 +202,30 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 	print();
 }
 
+bool	NginxConfig::alreadyExistsLocation(std::string	token, size_t server_index)
+{
+	///TODO
+	return (servers[server_index].locations.find(token) != servers[server_index].locations.end());
+}
+
+bool	NginxConfig::isNotContinueOfPrevious(std::string token, std::string prevToken)
+{
+	return (std::strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0 ? true : false);
+}
+
+
 NginxConfig::~NginxConfig() { }
 
 void NginxConfig::print() const
 {
 	for (size_t j = 0; j < servers.size(); ++j)
 	{
-		// for (size_t i = 0; i < servers[j].locations.size(); ++i)
-		// {
-			LocationMap::const_iterator it = servers[j].locations.begin();
-			for (; it != servers[j].locations.end(); ++it)
-			{
-				std::cout << it->second << "\n";
-			}
-			std::cout << "---------\n";
-		// }
+		LocationMap::const_iterator it = servers[j].locations.begin();
+		for (; it != servers[j].locations.end(); ++it)
+		{
+			std::cout << it->second << "\n";
+		}
+		std::cout << "---------\n";
 		std::cout << "+++++++++++++++++++++++++++++++++++++++++\n";
 	}
 }

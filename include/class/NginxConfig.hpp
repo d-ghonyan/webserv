@@ -32,9 +32,12 @@ private:
 	bool contains(char const * const allowed_tokens[], const std::string& token);
 
 private:
-	void generateTokens(const std::string &file);
-	void parseLocations(std::vector<std::string> &tokens);
-	void check_braces(const std::vector<std::string> tokens);
+	void	generateTokens(const std::string &file);
+	void	parseLocations(std::vector<std::string> &tokens);
+	void	check_braces(const std::vector<std::string> tokens);
+	bool	alreadyExistsLocation(std::string	token, size_t server_index);
+	bool	isNotContinueOfPrevious(std::string token, std::string prevToken);
+
 
 private: // utils
 	void listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
