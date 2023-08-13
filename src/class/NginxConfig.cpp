@@ -4,7 +4,6 @@ NginxConfig::NginxConfig() : path(DEFAULT_FILE_PATH), servers(std::vector<Server
 
 NginxConfig::NginxConfig(const std::string &file_path) : path(file_path), servers(std::vector<Server>()) {}
 
-
 char const * const NginxConfig::single_value_directives_location[] = {
 	"autoindex",
 	"root",
@@ -194,7 +193,6 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		{
 			if (tokens[i] != "}")
 				throw std::runtime_error("invalid directive: " + tokens[i]);
-			// std::cout << tokens[i] << " " << tokens[i - 1] << "\n";
 		}
 ;
 		if (tokens[i] == "}" && location_level != 0)
@@ -221,17 +219,10 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 	print();
 }
 
-bool	NginxConfig::alreadyExistsLocation(std::string	token, size_t server_index)
+bool NginxConfig::isNotContinueOfPrevious(std::string token, std::string prevToken)
 {
-	///TODO
-	return (servers[server_index].locations.find(token) != servers[server_index].locations.end());
+	return (std::strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0);
 }
-
-bool	NginxConfig::isNotContinueOfPrevious(std::string token, std::string prevToken)
-{
-	return (std::strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0 ? true : false);
-}
-
 
 NginxConfig::~NginxConfig() { }
 
