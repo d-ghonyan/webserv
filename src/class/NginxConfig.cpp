@@ -221,7 +221,7 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 
 bool NginxConfig::isNotContinueOfPrevious(std::string token, std::string prevToken)
 {
-	return (std::strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0);
+	return (strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0);
 }
 
 NginxConfig::~NginxConfig() { }

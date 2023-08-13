@@ -2,6 +2,7 @@
 
 # define CLASS_NGINX_CONFIG_HPP
 
+# include <stack>
 # include <vector>
 # include <fstream>
 # include <sstream>

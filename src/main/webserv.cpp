@@ -1,5 +1,7 @@
 #include "webserv.hpp"
 
+void lol();
+
 int main(int argc, char **argv)
 {
 	(void)argc;
@@ -9,7 +11,8 @@ int main(int argc, char **argv)
 
 	try
 	{
-		config.parse();
+		lol();
+		// config.parse();
 	}
 	catch(const std::exception& e)
 	{
