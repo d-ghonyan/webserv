@@ -17,14 +17,15 @@
 class Location
 {
 private:
-	std::string _cgi;
-	std::string _root;
-	std::string _route;
-	std::string _autoindex;
-	std::string _httpRedir;
-	std::string _upload_dir;
-	std::vector<std::string> _indexes;
-	std::vector<std::string> _allowed_methods;
+	int 						_locaction_level;
+	std::string					_cgi;
+	std::string					_root;
+	std::string					_route;
+	std::string					_autoindex;
+	std::string					_httpRedir;
+	std::string					_upload_dir;
+	std::vector<std::string>	_indexes;
+	std::vector<std::string>	_allowed_methods;
 
 	std::string parent;
 
@@ -43,12 +44,13 @@ public:
 public:
 	Location();
 	Location(const std::string& route);
-	Location(const std::string& route, std::string p);
+	Location(const std::string& route, std::string p, int loc_l);
 
 	std::string getroute() const ;
 	std::string getParent() const ;
 	
 	bool operator<(const Location& other) const ;
+	bool operator==(const Location& rhs) const;
 
 	~Location();
 };

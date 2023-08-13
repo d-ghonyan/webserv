@@ -18,11 +18,8 @@ void NginxConfig::setter(Location& location, const std::string& name, const std:
 		location.pushMethods(val);
 }
 
-void NginxConfig::setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& location_level, size_t& i)
+void NginxConfig::setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i)
 {
-	if (location_level <= 1)
-		throw std::runtime_error(tokens[i] + " is not allowed here");
-
 	std::string directive_name = tokens[i];
 
 	size_t count = ++i;
@@ -39,11 +36,8 @@ void NginxConfig::setProperties(Location& current_location, const std::vector<st
 	i = count;
 }
 
-void NginxConfig::setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& location_level, size_t& i)
+void NginxConfig::setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i)
 {
-	if (location_level <= 1)
-		throw std::runtime_error(tokens[i] + " is not allowed here");
-
 	std::string directive_name = tokens[i];
 
 	size_t count = ++i;

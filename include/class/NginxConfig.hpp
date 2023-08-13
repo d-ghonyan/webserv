@@ -46,8 +46,8 @@ private: // utils
 	void maxBodySize(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
 
 	void setter(Location& location, const std::string& name, const std::string& val);
-	void setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& location_level, size_t& i);
-	void setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& location_level, size_t& i);
+	void setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
+	void setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
 
 public:
 	NginxConfig();

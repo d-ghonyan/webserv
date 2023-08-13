@@ -1,22 +1,22 @@
 #include "Location.hpp"
 
 Location::Location():
-	_cgi(), _root(), _route(), _autoindex(), _httpRedir(),
+	_locaction_level(1), _cgi(), _root(), _route(), _autoindex(), _httpRedir(),
 	_upload_dir(), _indexes(), _allowed_methods(), parent()
 {
 
 }
 
-Location::Location(const std::string& route, std::string p):
-	_cgi(), _root(), _route(route), _autoindex(), _httpRedir(),
-	_upload_dir(), _indexes(), _allowed_methods(), parent(p)
+Location::Location(const std::string& route, std::string p, int loc_l):
+	_locaction_level(loc_l),	_cgi(), _root(), _route(route), _autoindex(), 
+	_httpRedir(), _upload_dir(), _indexes(), _allowed_methods(), parent(p)
 {
 
 }
 
 Location::Location(const std::string& route):
-	_cgi(), _root(), _route(route), _autoindex(), _httpRedir(),
-	_upload_dir(), _indexes(), _allowed_methods(), parent()
+	_locaction_level(1), _cgi(), _root(), _route(route), _autoindex(), 
+	_httpRedir(), _upload_dir(), _indexes(), _allowed_methods(), parent()
 {
 
 }
@@ -68,6 +68,7 @@ std::string Location::getroute() const
 
 void Location::printEverything(const std::string& indent) const
 {
+	std::cout << indent << "Location_level: " << _locaction_level << "\n";
 	std::cout << indent << "Route: " << _route << "\n";
 	std::cout << indent << "Cgi: " << _cgi << "\n";
 	std::cout << indent << "Root: " << _root << "\n";
@@ -88,6 +89,7 @@ void Location::printVectors(const std::vector<std::string>& vec, const std::stri
 	}
 	std::cout << "\n";
 }
+
 std::string Location::getParent() const
 {
 	return parent != "" ? parent : "N/A";
@@ -97,6 +99,14 @@ bool Location::operator<(const Location& other) const
 {
 	return _route < other._route;
 }
+
+bool Location::operator==(const Location& rhs) const
+{
+	return ( _route == rhs._route &&
+			_locaction_level == rhs._locaction_level &&
+			parent == rhs.parent );
+}
+
 
 std::ostream& operator<<(std::ostream& s, const Location& l)
 {

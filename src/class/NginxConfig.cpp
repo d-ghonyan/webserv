@@ -4,6 +4,7 @@ NginxConfig::NginxConfig() : path(DEFAULT_FILE_PATH), servers(std::vector<Server
 
 NginxConfig::NginxConfig(const std::string &file_path) : path(file_path), servers(std::vector<Server>()) {}
 
+
 char const * const NginxConfig::single_value_directives_location[] = {
 	"autoindex",
 	"root",
@@ -57,6 +58,13 @@ void NginxConfig::generateTokens(const std::string &file)
 		while (file[i] && std::isspace(file[i]))
 		{
 			++i;
+		}
+
+		if (file[i] == '#')
+		{
+			while (file[i] != '\n')
+				++i;
+			continue ;
 		}
 
 		while (file[i] && !std::isspace(file[i]) && file[i] != ';' && file[i] != '{' && file[i] != '}')
@@ -129,10 +137,18 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			maxBodySize(tokens, server_index, location_level, i);
 		else if (tokens[i] == "error_page")
 			errorPage(tokens, server_index, location_level, i);
-		else if (contains(single_value_directives_location, tokens[i])) // segfault on root
- 			setProperties(servers[server_index].locations[current_location.back()], tokens,location_level, i);
+		else if (contains(single_value_directives_location, tokens[i]))
+		{
+			if (location_level <= 1)
+				throw std::runtime_error(tokens[i] + " is not allowed here");
+ 			setProperties(servers[server_index].locations[current_location.back()], tokens, i);
+		}
 		else if (contains(array_value_directives_location, tokens[i]))
-			setVectors(servers[server_index].locations[current_location.back()], tokens,location_level, i);
+		{
+			if (location_level <= 1)
+				throw std::runtime_error(tokens[i] + " is not allowed here");
+			setVectors(servers[server_index].locations[current_location.back()], tokens, i);
+		}
 		else if (tokens[i] == "location")
 		{
 			if (tokens[i + 1] == "{" || tokens[i + 2] != "{")
@@ -141,16 +157,14 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			{
 				++i;
 				current_location.push_back(tokens[i]);
+				
+				Location temp(tokens[i], "", location_level);
 
-				////////////////////////////////////
-				///TODO
-				if (servers[server_index].locations.find(tokens[i]) != servers[server_index].locations.end())
-					throw (std::runtime_error("Dublicate location ara"));
-				
-				
-				std::cout << "------------------------->>" << tokens[i] << ">>\n";
-				
-				servers[server_index].locations.insert(std::make_pair(tokens[i], Location(tokens[i])));
+				LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
+				if (it != servers[server_index].locations.end() && it->second == temp)
+					throw (std::runtime_error("Dublicate location ay txa e o"));
+					
+				servers[server_index].locations.insert(std::make_pair(tokens[i], temp));
 
 				++i;
 				++location_level;
@@ -158,13 +172,19 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			else
 			{
 				++i;
-				std::cout << "------------------------->>" << tokens[i] << ">>\n";
-				std::cout << "---------------------------------->>" << current_location.back()<< ">>\n";
 				if (isNotContinueOfPrevious(tokens[i], current_location.back()))
 				{
 					throw (std::runtime_error("outside location " + tokens[i]));
 				}
-				servers[server_index].locations.insert(std::make_pair(tokens[i], Location(tokens[i], current_location.back())));
+
+				Location temp(tokens[i], current_location.back(), location_level);
+
+				LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
+
+				if (it != servers[server_index].locations.end() && it->second == temp)
+					throw (std::runtime_error("Dublicate location ay txa e o"));
+
+				servers[server_index].locations.insert(std::make_pair(tokens[i], temp));
 				current_location.push_back(tokens[i]);
 				++i;
 				++location_level;
