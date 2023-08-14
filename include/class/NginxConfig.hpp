@@ -17,6 +17,11 @@
 
 # define DEFAULT_FILE_PATH "conf.d/webserv.conf"
 
+struct NonDigit
+{
+	bool operator()(char c){ return !::isdigit(c); }
+};
+
 class NginxConfig
 {
 private:
@@ -38,6 +43,9 @@ private:
 	void	check_braces(const std::vector<std::string> tokens);
 	bool	alreadyExistsLocation(std::string	token, size_t server_index);
 	bool	isNotContinueOfPrevious(std::string token, std::string prevToken);
+	bool	isInvalidValue(const std::string&);
+	size_t	get_actual_value_cmbs(const std::string& token);
+
 
 
 private: // utils

@@ -35,6 +35,7 @@ public:
 	void pushIndexes(const std::string&);
 	void pushMethods(const std::string&);
 	void setAutoindex(const std::string&);
+
 	void setHttpRedir(const std::string&);
 	void setUploadDir(const std::string&);
 

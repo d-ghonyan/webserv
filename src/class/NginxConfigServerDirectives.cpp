@@ -1,4 +1,7 @@
 #include "NginxConfig.hpp"
+#include <sstream>
+#include <cmath>
+
 
 void NginxConfig::serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
 {
@@ -43,8 +46,8 @@ void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& serv
 	if (location_level != 1)
 		throw std::runtime_error(tokens[i] + " is not allowed here");
 
-	size_t count = ++i;
-	std::string error_page;
+	size_t		count = ++i;
+	std::string	error_page;
 
 	while (tokens[count] !=  ";" && tokens[count] != "{" && tokens[count] != "}")
 	{
@@ -77,10 +80,13 @@ void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& se
 
 	while (tokens[count] !=  ";" && tokens[count] != "{" && tokens[count] != "}")
 	{
-		if (page_count == 0 && servers[server_index].getMaxBodySize() != "")
+		if (page_count == 0 && servers[server_index].getMaxBodySize() != 0)
 			throw std::runtime_error("duplicate client_max_body_size directive");
+		
+		if (isInvalidValue(tokens[count]))
+			throw std::runtime_error("Invalid value of client_max_body_size directive");
 
-		servers[server_index].setMaxBodySize(tokens[count]);
+		servers[server_index].setMaxBodySize(get_actual_value_cmbs(tokens[count]));
 		++count;
 		++page_count;
 	}
@@ -89,4 +95,69 @@ void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& se
 		throw std::runtime_error("invalid client_max_body_size directive");
 
 	i = count;
+}
+
+
+bool	NginxConfig::isInvalidValue(const std::string& token)
+{
+
+
+	std::string::const_iterator start	= token.begin();
+	std::string::const_iterator end		= token.end();
+	std::string::const_iterator it		= std::find_if(start, end, NonDigit());
+	
+	if (it == end)
+		return false;
+	if (it != (end - 1))
+		return true;
+	
+	char unit = token.back();
+	if (unit != 'k' && unit != 'm' && unit != 'g' && unit != 't' && unit != 'p' && unit != 'e')
+		return true;
+	
+	return false;
+}
+
+size_t	NginxConfig::get_actual_value_cmbs(const std::string&	token)
+{
+	// k: Kilobytes	-> 10^3
+	// m: Megabytes	-> 10^6
+	// g: Gigabytes	-> 10^9
+	// t: Terabytes	-> 10^12
+	// p: Petabytes	-> 10^15
+	// e: Exabytes	-> 10^18
+	
+	size_t	act_value = 1;//bytes
+	char unit = token.back();
+	if (!std::isdigit(unit))
+	{
+		size_t	power = 1;
+		std::string val = token.substr(0, token.length() - 1);
+		std::cout << val << "----  " << unit << "\n";
+
+		if (unit == 'k')
+			power = std::pow(10, 3);
+		else if (unit == 'm')
+			power = std::pow(10, 6);
+		else if (unit == 'g')
+			power = std::pow(10, 9);
+		else if (unit == 't')
+			power = std::pow(10, 12);
+		else if (unit == 'p')
+			power = std::pow(10, 15);
+		else if (unit == 'e')
+			power = std::pow(10, 18);
+		
+		std::stringstream	ss(val);
+		ss >> act_value;
+		act_value *= power;
+		return act_value;
+	}
+	else
+	{
+		std::stringstream	ss(token);
+		ss >> act_value;
+		return (act_value);
+	}
+
 }

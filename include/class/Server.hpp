@@ -9,14 +9,14 @@
 
 # define DEFAULT_PORT 80
 # define DEFAULT_SERVER_NAME ""
-# define DEFAULT_MAX_BODY_SIZE 1024
+# define DEFAULT_MAX_BODY_SIZE 1
 
 typedef std::string	Route;
 
 class Server
 {
 private:
-	std::string max_body_size;
+	size_t max_body_size;
 	std::vector<std::string> listen;
 	std::map<std::string, std::string> error_pages;
 	std::vector<std::string> server_names;
@@ -27,12 +27,12 @@ public:
 
 public:
 	void pushListen(const std::string& l);
-	void setMaxBodySize(const std::string& l);
+	void setMaxBodySize(size_t l);
 	void pushServerName(const std::string& server_name);
 	void pushErrorPage(const std::string& error_code, const std::string& error_page);
 
 public:
-	std::string getMaxBodySize() const ;
+	size_t getMaxBodySize() const ;
 
 public:
 	void print_everything();
