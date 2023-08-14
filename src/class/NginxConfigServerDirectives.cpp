@@ -76,19 +76,17 @@ void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& se
 		throw std::runtime_error(tokens[i] + " is not allowed here");
 
 	size_t count = ++i;
-	size_t page_count = 0;
+
+	if (std::count(tokens.begin(), tokens.end(), "client_max_body_size") != 1)
+		throw std::runtime_error("duplicate client_max_body_size directive");
 
 	while (tokens[count] !=  ";" && tokens[count] != "{" && tokens[count] != "}")
 	{
-		if (page_count == 0 && servers[server_index].getMaxBodySize() != 0)
-			throw std::runtime_error("duplicate client_max_body_size directive");
-		
 		if (isInvalidValue(tokens[count]))
 			throw std::runtime_error("Invalid value of client_max_body_size directive");
 
 		servers[server_index].setMaxBodySize(get_actual_value_cmbs(tokens[count]));
 		++count;
-		++page_count;
 	}
 
 	if (count == i || count - 1 != i || tokens[count] != ";")
