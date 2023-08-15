@@ -1,7 +1,4 @@
 #include "NginxConfig.hpp"
-#include <sstream>
-#include <cmath>
-
 
 void NginxConfig::serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
 {
@@ -108,8 +105,6 @@ void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& se
 
 bool	NginxConfig::isInvalidValue(const std::string& token)
 {
-
-
 	std::string::const_iterator start	= token.begin();
 	std::string::const_iterator end		= token.end();
 	std::string::const_iterator it		= std::find_if(start, end, NonDigit());
@@ -120,10 +115,8 @@ bool	NginxConfig::isInvalidValue(const std::string& token)
 		return true;
 	
 	char unit = std::tolower(token[token.size() - 1]);
-	if (unit != 'k' && unit != 'm' && unit != 'g' && unit != 't' && unit != 'p' && unit != 'e')
-		return true;
 	
-	return false;
+	return unit != 'k' && unit != 'm' && unit != 'g' && unit != 't' && unit != 'p' && unit != 'e';
 }
 
 bool	NginxConfig::isValidErrorPage(const std::string& err_page)
@@ -134,27 +127,26 @@ bool	NginxConfig::isValidErrorPage(const std::string& err_page)
 bool	NginxConfig::isValidErrorCode(const std::string& code)
 {
 	std::string::const_iterator	it = std::find_if(code.begin(), code.end(), NonDigit());
+
 	if (it != code.end())
 	{
 		std::cout << "----->" << *it << " <----------\n";
 		return false;
 	}
-	int	err_code = 0;
-	std::stringstream	ss(code);
-	ss >> err_code;
-	//[300-600)
-	if (err_code < 300 || err_code >= 600)
-	{
-		std::cout << "_____ " << err_code << " ______\n";
-		return false;
 
-	}
-	return true;
+	int	err_code = 0;
+
+	std::stringstream	ss(code);
+
+	ss >> err_code;
+
+	return !(err_code < 300 || err_code >= 600);
 }
 
 bool	NginxConfig::containsSpecialChar(const std::string& token)
 {
-	const std::string	specChars("*?:;\"\'<>|&%#$@+-=");
+	const std::string specChars("*?:;\"\'<>|&%#$@+-=");
+
 	for (std::string::const_iterator it = token.begin(); it !=  token.end(); ++it)
 	{
 		std::string::const_iterator found = std::find(specChars.begin(), specChars.end(), *it);
@@ -164,22 +156,22 @@ bool	NginxConfig::containsSpecialChar(const std::string& token)
 	return (false);
 }
 
-
+// k: Kilobytes	-> 10^3
+// m: Megabytes	-> 10^6
+// g: Gigabytes	-> 10^9
+// t: Terabytes	-> 10^12
+// p: Petabytes	-> 10^15
+// e: Exabytes	-> 10^18
 size_t	NginxConfig::get_actual_value_cmbs(const std::string&	token)
 {
-	// k: Kilobytes	-> 10^3
-	// m: Megabytes	-> 10^6
-	// g: Gigabytes	-> 10^9
-	// t: Terabytes	-> 10^12
-	// p: Petabytes	-> 10^15
-	// e: Exabytes	-> 10^18
-	
-	size_t	act_value = 1;//bytes
+	size_t act_value = 1;
 	char unit = std::tolower(token[token.size() - 1]);
+
 	if (!std::isdigit(unit))
 	{
 		size_t	power = 1;
 		std::string val = token.substr(0, token.length() - 1);
+
 		if (unit == 'k')
 			power = std::pow(10, 3);
 		else if (unit == 'm')
@@ -194,15 +186,18 @@ size_t	NginxConfig::get_actual_value_cmbs(const std::string&	token)
 			power = std::pow(10, 18);
 		
 		std::stringstream	ss(val);
+		
 		ss >> act_value;
 		act_value *= power;
+
 		return act_value;
 	}
 	else
 	{
 		std::stringstream	ss(token);
+		
 		ss >> act_value;
+		
 		return (act_value);
 	}
-
 }
