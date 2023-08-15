@@ -1,5 +1,5 @@
 NAME		= webserv
-MODULES		= main class util
+MODULES		= $(shell ls src)
 
 SDIR		= src/
 ODIR		= obj/

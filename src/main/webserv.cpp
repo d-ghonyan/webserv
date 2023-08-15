@@ -1,6 +1,6 @@
 #include "webserv.hpp"
 
-void lol();
+void loop();
 
 int main(int argc, char **argv)
 {
@@ -11,8 +11,8 @@ int main(int argc, char **argv)
 
 	try
 	{
-		// lol();
-		config.parse();
+		loop();
+		// config.parse();
 	}
 	catch(const std::exception& e)
 	{

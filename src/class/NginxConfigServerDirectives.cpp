@@ -119,7 +119,7 @@ bool	NginxConfig::isInvalidValue(const std::string& token)
 	if (it != (end - 1))
 		return true;
 	
-	char unit = std::tolower(token.back());
+	char unit = std::tolower(token[token.size() - 1]);
 	if (unit != 'k' && unit != 'm' && unit != 'g' && unit != 't' && unit != 'p' && unit != 'e')
 		return true;
 	
@@ -175,7 +175,7 @@ size_t	NginxConfig::get_actual_value_cmbs(const std::string&	token)
 	// e: Exabytes	-> 10^18
 	
 	size_t	act_value = 1;//bytes
-	char unit = std::tolower(token.back());
+	char unit = std::tolower(token[token.size() - 1]);
 	if (!std::isdigit(unit))
 	{
 		size_t	power = 1;
