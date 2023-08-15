@@ -22,7 +22,7 @@ void Server::pushServerName(const std::string& server_name)
 	server_names.push_back(server_name);
 }
 
-void Server::pushErrorPage(const std::string& error_code, const std::string& error_page)
+void Server::pushErrorPage(ErrorCode error_code, const std::string& error_page)
 {
 	error_pages[error_code] = error_page;
 }
@@ -35,7 +35,7 @@ void Server::print_everything()
 	printVectors(listen);
 	std::cout << "Error pages: \n";
 
-	for (std::map<std::string, std::string>::iterator it = error_pages.begin(); it != error_pages.end(); ++it)
+	for (std::map<int, std::string>::iterator it = error_pages.begin(); it != error_pages.end(); ++it)
 		std::cout << "  " << it->first << " " << it->second << " \n";
 
 	std::cout << "\n";

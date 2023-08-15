@@ -3,7 +3,14 @@
 void NginxConfig::setter(Location& location, const std::string& name, const std::string& val)
 {
 	if (name == "autoindex")
-		location.setAutoindex(val);
+	{
+		if (val == "on" || val  == "off")
+		{
+			location.setAutoindex(val);
+		}
+		else
+			throw std::runtime_error("invalid value of autoindex directive");
+	}
 	else if (name == "root")
 		location.setRoot(val);
 	else if (name == "return")
@@ -31,7 +38,7 @@ void NginxConfig::setProperties(Location& current_location, const std::vector<st
 	}
 
 	if (count == i || count - 1 != i || tokens[count] != ";")
-		throw std::runtime_error("invalid" + directive_name + "directive");
+		throw std::runtime_error("invalid " + directive_name + " directive");
 
 	i = count;
 }

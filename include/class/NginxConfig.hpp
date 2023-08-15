@@ -45,6 +45,12 @@ private:
 	bool	isNotContinueOfPrevious(std::string token, std::string prevToken);
 	bool	isInvalidValue(const std::string&);
 	size_t	get_actual_value_cmbs(const std::string& token);
+	bool	isValidErrorPage(const std::string& err_page);
+	bool	containsSpecialChar(const std::string& token);
+	bool	isValidErrorCode(const std::string& code);
+
+
+
 
 
 

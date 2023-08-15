@@ -55,6 +55,10 @@ void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& serv
 	}
 
 	error_page = tokens[count - 1];
+	if (!isValidErrorPage(error_page))
+	{
+		throw std::runtime_error("invalid path in error_page directive");
+	}
 
 	if (count == i || count == i + 1 || tokens[count] != ";")
 		throw std::runtime_error("invalid error_page directive");
@@ -63,7 +67,13 @@ void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& serv
 
 	while (tokens[count] != error_page)
 	{
-		servers[server_index].pushErrorPage(tokens[count], error_page);
+		if (!isValidErrorCode(tokens[count]))
+			throw std::runtime_error("invalid error_code in error_page directive");
+		std::stringstream	ss(tokens[count]);
+		int err_code;
+		ss >> err_code;
+
+		servers[server_index].pushErrorPage(err_code, error_page);
 		++count;
 	}
 
@@ -109,12 +119,51 @@ bool	NginxConfig::isInvalidValue(const std::string& token)
 	if (it != (end - 1))
 		return true;
 	
-	char unit = token.back();
+	char unit = std::tolower(token.back());
 	if (unit != 'k' && unit != 'm' && unit != 'g' && unit != 't' && unit != 'p' && unit != 'e')
 		return true;
 	
 	return false;
 }
+
+bool	NginxConfig::isValidErrorPage(const std::string& err_page)
+{
+	return (containsSpecialChar(err_page) ? true : false);
+}
+
+bool	NginxConfig::isValidErrorCode(const std::string& code)
+{
+	std::string::const_iterator	it = std::find_if(code.begin(), code.end(), NonDigit());
+	if (it != code.end())
+	{
+		std::cout << "----->" << *it << " <----------\n";
+		return false;
+	}
+	int	err_code = 0;
+	std::stringstream	ss(code);
+	ss >> err_code;
+	//[300-600)
+	if (err_code < 300 || err_code >= 600)
+	{
+		std::cout << "_____ " << err_code << " ______\n";
+		return false;
+
+	}
+	return true;
+}
+
+bool	NginxConfig::containsSpecialChar(const std::string& token)
+{
+	const std::string	specChars("*?:;\"\'<>|&%#$@+-=");
+	for (std::string::const_iterator it = token.begin(); it !=  token.end(); ++it)
+	{
+		std::string::const_iterator found = std::find(specChars.begin(), specChars.end(), *it);
+		if (found != specChars.end())
+			return (true);
+	}
+	return (false);
+}
+
 
 size_t	NginxConfig::get_actual_value_cmbs(const std::string&	token)
 {
@@ -126,13 +175,11 @@ size_t	NginxConfig::get_actual_value_cmbs(const std::string&	token)
 	// e: Exabytes	-> 10^18
 	
 	size_t	act_value = 1;//bytes
-	char unit = token.back();
+	char unit = std::tolower(token.back());
 	if (!std::isdigit(unit))
 	{
 		size_t	power = 1;
 		std::string val = token.substr(0, token.length() - 1);
-		std::cout << val << "----  " << unit << "\n";
-
 		if (unit == 'k')
 			power = std::pow(10, 3);
 		else if (unit == 'm')

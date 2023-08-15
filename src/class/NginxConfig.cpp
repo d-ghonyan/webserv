@@ -135,7 +135,9 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		else if (tokens[i] == "client_max_body_size")
 			maxBodySize(tokens, server_index, location_level, i);
 		else if (tokens[i] == "error_page")
+		{
 			errorPage(tokens, server_index, location_level, i);
+		}
 		else if (contains(single_value_directives_location, tokens[i]))
 		{
 			if (location_level <= 1)
@@ -194,7 +196,6 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 			if (tokens[i] != "}")
 				throw std::runtime_error("invalid directive: " + tokens[i]);
 		}
-;
 		if (tokens[i] == "}" && location_level != 0)
 		{
 			--location_level;

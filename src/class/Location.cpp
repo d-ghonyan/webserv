@@ -1,21 +1,21 @@
 #include "Location.hpp"
 
 Location::Location():
-	_locaction_level(1), _cgi(), _root(), _route(), _autoindex(), _httpRedir(),
+	_locaction_level(1), _cgi(), _root(), _route(), _autoindex("off"), _httpRedir(),
 	_upload_dir(), _indexes(), _allowed_methods(), parent()
 {
 
 }
 
 Location::Location(const std::string& route, std::string p, int loc_l):
-	_locaction_level(loc_l),	_cgi(), _root(), _route(route), _autoindex(), 
+	_locaction_level(loc_l),	_cgi(), _root(), _route(route), _autoindex("off"), 
 	_httpRedir(), _upload_dir(), _indexes(), _allowed_methods(), parent(p)
 {
 
 }
 
 Location::Location(const std::string& route):
-	_locaction_level(1), _cgi(), _root(), _route(route), _autoindex(), 
+	_locaction_level(1), _cgi(), _root(), _route(route), _autoindex("off"), 
 	_httpRedir(), _upload_dir(), _indexes(), _allowed_methods(), parent()
 {
 
