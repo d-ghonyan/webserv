@@ -11,48 +11,123 @@
 #include <fstream>
 #include <string>
 
-void lol()
+int getSocketListener(const char * name, const char *port)
 {
+	int fd;
 	int status;
+	int yes = 1;
 	struct addrinfo hints;
 	struct addrinfo *list;
 
-	struct sockaddr_storage their_addr;
-	socklen_t addr_size = sizeof their_addr;
-
-	memset(&hints, 0, sizeof hints);
-
-	hints.ai_family = AF_INET;
+	memset(&hints, 0);
 	hints.ai_flags = AI_PASSIVE;
 	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_family = AF_INET;
 
-	if ((status = getaddrinfo(NULL, "8080", &hints, &list)) < 0)
-		std::cout << gai_strerror(status) << "\n";
+	status = getaddrinfo(name, port, &hints, &list);
+	if (status != 0)
+		throw (std::string("Error getting addrinfo: ") + gai_strerror(status));
 
-	int fd = socket(list->ai_family, list->ai_socktype, list->ai_protocol);
+	fd = socket(list->ai_family, list->ai_socktype, list->ai_protocol);
+	freeaddrinfo(list);
 
 	if (fd < 0)
-		perror("BAREV");
+	{
+		perror("socket: ");
+		throw ("socket error");
+	}
+
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
+
+	if (bind(fd, list->ai_addr, list->ai_addrlen))
+	{
+		perror("bind: ");
+		throw ("bind error");
+	}
+
+	if (listen(fd, 4096) < 0) // too much?
+	{
+		perror("listen: ");
+		throw ("listen error");
+	}
+
+	return fd;
+}
+
+void sendAll(int fd, char *buf, ssize_t buflen)
+{
+	ssize_t start = 0;
+
+	while (buflen)
+	{
+		ssize_t res = send(fd, buf + res, buflen, 0);
+		if (res < 0)
+		{
+			error("send: ");
+			throw ("send error");
+		}
+		start += res;
+		buflen -= res;
+	}
+}
+
+std::string my_to_string(int num)
+{
+	size_t pos = 0;
+	std::string ret;
+
+	if (num == 0)
+		return ("0");
+
+	if (num < 0)
+	{
+		ret.insert(0, 1, '-');
+		++pos;
+	}
+
+	while (num)
+	{
+		res.insert(pos, 1, (num % 10) + 48);
+		num /= 10;
+	}
+
+	return ret;
+}
+
+void lol()
+{
+	std::string root = "www/";
+	struct sockaddr_in their_addr;
+	socklen_t their_addr_size = sizeof their_addr;
+
+	int fd = getSocketListener(NULL, "8080");
 
 	if (bind(fd, list->ai_addr, list->ai_addrlen))
 		perror("bind");
 
-	listen(fd, 10);
+	while (1)
+	{
+		int their_fd = accept(fd, (struct sockaddr *)&their_addr, &addr_size);
 
-	int their_fd = accept(fd, (struct sockaddr *)&their_addr, &addr_size);
-	if (their_fd < 0)
-		perror("oh no blyat");
+		if (their_fd < 0)
+			perror("oh no blyat");
 
-	std::stringstream str;
+		char recvbuf[4096];
 
-	std::ifstream buf("www/barev/index.html");
+		recv(fd, recvbuf, 4095, 0);
 
-	str << buf.rdbuf();
+		std::cout << recvbuf << "\n";
 
-	std::string data(str.str());
+		std::stringstream str;
 
-	data = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length: 120\n\n" + data;
+		std::ifstream buf(root + "barev/index.html");
 
-	if (send(their_fd, data.c_str(), data.size(), 0) < 0)
-		perror("suka");
+		str << buf.rdbuf();
+
+		std::string data(str.str());
+
+		data = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
+
+		sendAll(fd, data.c_str(), data.size());
+	}
 }
