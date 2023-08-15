@@ -4,12 +4,9 @@ void NginxConfig::setter(Location& location, const std::string& name, const std:
 {
 	if (name == "autoindex")
 	{
-		if (val == "on" || val  == "off")
-		{
-			location.setAutoindex(val);
-		}
-		else
+		if (val != "on" && val  != "off")
 			throw std::runtime_error("invalid value of autoindex directive");
+		location.setAutoindex(val);
 	}
 	else if (name == "root")
 		location.setRoot(val);
