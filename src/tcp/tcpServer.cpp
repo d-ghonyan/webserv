@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "tcpServer.hpp"
 
 void loop()
 {
@@ -18,13 +18,15 @@ void loop()
 		char recvbuf[4096];
 
 		if (recv(their_fd, recvbuf, 4095, 0) < 0)
-			perror ("dzver");
+			perror ("recv");
 
-		recvbuf[4096] = 0;
+		recvbuf[4095] = 0;
+
+        std::cout << recvbuf << "\n";
 
 		std::stringstream str;
 
-		std::cout << getUrl(recvbuf);
+		std::cout << getUrl(recvbuf) << "\n";
 
 		std::ifstream buf((root + getUrl(recvbuf) + "/index.html").c_str());
 

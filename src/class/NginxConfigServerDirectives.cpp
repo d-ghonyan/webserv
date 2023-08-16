@@ -28,6 +28,8 @@ void NginxConfig::listen(const std::vector<std::string>& tokens, size_t& server_
 
 	while (tokens[count] !=  ";" && tokens[count] != "{" && tokens[count] != "}")
 	{
+		std::cout << "----> " << tokens[count] << "<-------\n";
+		///TODO: if (isValid)
 		servers[server_index].pushListen(tokens[count]);
 		++count;
 	}
@@ -121,7 +123,7 @@ bool	NginxConfig::isInvalidValue(const std::string& token)
 
 bool	NginxConfig::isValidErrorPage(const std::string& err_page)
 {
-	return (containsSpecialChar(err_page) ? true : false);
+	return (!containsSpecialChar(err_page) ? true : false);
 }
 
 bool	NginxConfig::isValidErrorCode(const std::string& code)

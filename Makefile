@@ -1,5 +1,5 @@
 NAME		= webserv
-MODULES		= $(shell ls src)
+MODULES		= $(shell cd src && find * -type d)
 
 SDIR		= src/
 ODIR		= obj/

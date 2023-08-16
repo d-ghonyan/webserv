@@ -42,13 +42,13 @@ private:
 	void	generateTokens(const std::string &file);
 	void	parseLocations(std::vector<std::string> &tokens);
 	void	check_braces(const std::vector<std::string> tokens);
-	bool	alreadyExistsLocation(std::string	token, size_t server_index);
+	bool	alreadyExistsLocation(std::string token, size_t server_index);
 	bool	isNotContinueOfPrevious(std::string token, std::string prevToken);
 	bool	isInvalidValue(const std::string&);
-	size_t	get_actual_value_cmbs(const std::string& token);
 	bool	isValidErrorPage(const std::string& err_page);
 	bool	containsSpecialChar(const std::string& token);
 	bool	isValidErrorCode(const std::string& code);
+	size_t	get_actual_value_cmbs(const std::string& token);
 
 
 
