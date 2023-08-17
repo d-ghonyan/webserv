@@ -44,6 +44,48 @@ int getSocketListener(const char * name, const char *port)
 	return fd;
 }
 
+void sendFile(int sockfd)
+{
+	std::string root = "www/";
+
+	struct sockaddr_in their_addr;
+	socklen_t their_addr_size = sizeof their_addr;
+
+	int their_fd = accept(sockfd, (struct sockaddr *)&their_addr, &their_addr_size);
+
+	if (their_fd < 0)
+		perror("oh no blyat");
+
+	char recvbuf[4096];
+
+	ssize_t received;
+
+	if ((received = recv(their_fd, recvbuf, 4096, 0)) < 0)
+		perror ("recv");
+
+	recvbuf[received] = 0;
+
+	std::cout << recvbuf << " recvbuf \n";
+
+	std::stringstream str;
+
+	std::cout << getUrl(recvbuf) << " geturl \n";
+
+	std::ifstream buf((root + getUrl(recvbuf) + "/index.html").c_str());
+
+	if (buf.fail())
+		perror("failed to open file");
+
+	str << buf.rdbuf();
+
+	std::string data(str.str());
+
+	data = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
+
+	sendAll(their_fd, data.c_str(), data.size());
+	close(their_fd);
+}
+
 void sendAll(int fd, const char *buf, ssize_t buflen)
 {
 	ssize_t start = 0;

@@ -1,47 +1,42 @@
 #include "tcpServer.hpp"
 
+void init_sets(const int& sockfd, fd_set& readfd, fd_set& writefd)
+{
+	FD_ZERO(&readfd);
+	FD_SET(sockfd, &readfd);
+
+	FD_ZERO(&writefd);
+	FD_SET(sockfd, &writefd);
+}
+
 void loop()
 {
 	std::string root = "www/";
-	struct sockaddr_in their_addr;
-	socklen_t their_addr_size = sizeof their_addr;
 
 	int fd = getSocketListener(NULL, "8080");
 
+	fd_set readfd;
+	fd_set writefd;
+
 	while (1)
 	{
-			int their_fd = accept(fd, (struct sockaddr *)&their_addr, &their_addr_size);
+		init_sets(fd, readfd, writefd);
 
-			if (their_fd < 0)
-				perror("oh no blyat");
+		std::cout << "WAITING...\n";
 
-			char recvbuf[4096];
+		int ready_count = select(fd + 1, &readfd, &writefd, NULL, NULL);
 
-			ssize_t received;
+		std::cout << "SELECT RETURNED...\n";
 
-			if ((received = recv(their_fd, recvbuf, 4096, 0)) < 0)
-				perror ("recv");
-
-			recvbuf[received] = 0;
-
-			std::cout << recvbuf << " recvbuf \n";
-
-			std::stringstream str;
-
-			std::cout << getUrl(recvbuf) << " geturl \n";
-
-			std::ifstream buf((root + getUrl(recvbuf) + "/index.html").c_str());
-
-			if (buf.fail())
-				perror("failed to open file");
-
-			str << buf.rdbuf();
-
-			std::string data(str.str());
-
-			data = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
-
-			sendAll(their_fd, data.c_str(), data.size());
-			close(their_fd);
+		if (ready_count < 0)
+		{
+			perror("select");
+			throw ("select error");
+		}
+		if (FD_ISSET(fd, &readfd))
+		{
+			std::cout << "I'm here nahooi\n";
+			sendFile(fd);
+		}
 	}
 }

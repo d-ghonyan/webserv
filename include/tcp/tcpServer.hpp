@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/select.h>
 
 #include <sstream>
 #include <fstream>
@@ -16,7 +17,10 @@
 
 std::string my_to_string(int num);
 std::string getUrl(const char *buf);
+
+void sendFile(int sockfd);
 void sendAll(int fd, const char *buf, ssize_t buflen);
+
 int getSocketListener(const char * name, const char *port);
 
 #endif // TCP_SERVER_HPP
