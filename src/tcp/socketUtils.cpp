@@ -59,6 +59,10 @@ void sendAll(int fd, const char *buf, ssize_t buflen)
 		}
 
 		start += res;
+
+		if (buflen - res < 0)
+			res = buflen;
+
 		buflen -= res;
 	}
 }

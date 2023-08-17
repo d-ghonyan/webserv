@@ -10,36 +10,38 @@ void loop()
 
 	while (1)
 	{
-		int their_fd = accept(fd, (struct sockaddr *)&their_addr, &their_addr_size);
+			int their_fd = accept(fd, (struct sockaddr *)&their_addr, &their_addr_size);
 
-		if (their_fd < 0)
-			perror("oh no blyat");
+			if (their_fd < 0)
+				perror("oh no blyat");
 
-		char recvbuf[4096];
+			char recvbuf[4096];
 
-		if (recv(their_fd, recvbuf, 4095, 0) < 0)
-			perror ("recv");
+			ssize_t received;
 
-		recvbuf[4095] = 0;
+			if ((received = recv(their_fd, recvbuf, 4096, 0)) < 0)
+				perror ("recv");
 
-        std::cout << recvbuf << "\n";
+			recvbuf[received] = 0;
 
-		std::stringstream str;
+			std::cout << recvbuf << " recvbuf \n";
 
-		std::cout << getUrl(recvbuf) << "\n";
+			std::stringstream str;
 
-		std::ifstream buf((root + getUrl(recvbuf) + "/index.html").c_str());
+			std::cout << getUrl(recvbuf) << " geturl \n";
 
-		if (buf.fail())
-			perror("failed to open file");
+			std::ifstream buf((root + getUrl(recvbuf) + "/index.html").c_str());
 
-		str << buf.rdbuf();
+			if (buf.fail())
+				perror("failed to open file");
 
-		std::string data(str.str());
+			str << buf.rdbuf();
 
-		data = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
+			std::string data(str.str());
 
-		sendAll(their_fd, data.c_str(), data.size());
-		close(their_fd);
+			data = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
+
+			sendAll(their_fd, data.c_str(), data.size());
+			close(their_fd);
 	}
 }
