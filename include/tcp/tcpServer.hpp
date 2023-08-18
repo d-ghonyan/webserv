@@ -15,6 +15,7 @@
 # include <fstream>
 # include <cstring>
 # include <iostream>
+# include <algorithm>
 
 # define MAX_BUF 4096
 
@@ -26,6 +27,8 @@ typedef struct recv
 	ssize_t offset;
 	std::string sendbuf;
 
+	bool operator>(const struct recv& lhs) const { return sockfd > lhs.sockfd; }
+	bool operator<(const struct recv& lhs) const { return sockfd < lhs.sockfd; }
 	bool operator==(const struct recv& lhs) const { return finished == lhs.finished; }
 
 	recv() : finished(false), offset(0) { }

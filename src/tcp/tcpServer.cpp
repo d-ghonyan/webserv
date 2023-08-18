@@ -38,7 +38,7 @@ void acceptSocket(int sockfd, std::vector<recv_t>& fds)
 	int their_fd = accept(sockfd, (struct sockaddr *)&their_addr, &their_addr_size);
 
 	if (their_fd < 0)
-		perror("oh no blyat");
+		perror("oh no i had to change the error message");
 
 	rc.sockfd = their_fd;
 
@@ -51,9 +51,7 @@ void acceptSocket(int sockfd, std::vector<recv_t>& fds)
 	}
 
 	rc.buf[received] = 0;
-	rc.sendbuf = openFile(rc.buf, "root/");
-
-	std::cout << "pushing to the vector !!!!!!!!!!!!  \n";
+	rc.sendbuf = openFile(rc.buf, "www/");
 
 	fds.push_back(rc);
 }
@@ -71,11 +69,11 @@ void loop()
 
 	while (1)
 	{
+		int max_fd = writefds.size() == 0 ? fd : std::max(std::max_element(writefds.begin(), writefds.end())->sockfd, fd);
+
 		init_sets(fd, writefds, readfd, writefd);
 
-		std::cout << "WAITING...\n";
-
-		int ready_count = select(fd + 1, &readfd, &writefd, NULL, NULL);
+		int ready_count = select(max_fd + 1, &readfd, &writefd, NULL, NULL);
 
 		std::cout << "SELECT RETURNED...\n";
 
@@ -84,25 +82,27 @@ void loop()
 			perror("select");
 			throw std::runtime_error("select error");
 		}
+
 		if (FD_ISSET(fd, &readfd))
 		{
-			std::cout << "I'm here nahooi\n";
 			acceptSocket(fd, writefds);
 		}
 		for (size_t i = 0; i < writefds.size(); ++i)
 		{
-			std::cout << "through writefds -- \n";
 			if (FD_ISSET(writefds[i].sockfd, &writefd))
 			{
-				std::cout << "found a bitch!!\n";
 				sendFile(writefds[i], writefds);
-				std::cout << "sent the file to the bitch!!\n";
 			}
 		}
 		recv_t temp;
 
 		temp.finished = true;
 
-		std::remove(writefds.begin(), writefds.end(), temp);		
+		std::vector<recv_t>::iterator start = std::remove(writefds.begin(), writefds.end(), temp);
+
+		for (std::vector<recv_t>::iterator it = start; it != writefds.end(); ++it)
+			close(it->sockfd);
+
+		writefds.erase(start, writefds.end());
 	}
 }
