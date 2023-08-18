@@ -4,6 +4,7 @@
 # include <netdb.h>
 # include <stdio.h>
 # include <unistd.h>
+# include <dirent.h>
 # include <arpa/inet.h>
 # include <sys/types.h>
 # include <sys/socket.h>
@@ -36,10 +37,12 @@ typedef struct recv
 
 std::string my_to_string(int num);
 std::string getUrl(const char *buf);
-
-void sendAll(int fd, const char *buf, ssize_t buflen);
-void sendFile(recv_t& rc, std::vector<recv_t>& writefds);
+std::string openFile(const char recvbuf[MAX_BUF + 1], const std::string& root);
+std::string listDirectiory(const char recvbuf[MAX_BUF + 1]);
 
 int getSocketListener(const char * name, const char *port);
+void sendFile(recv_t& rc);
+void sendAll(int fd, const char *buf, ssize_t buflen);
+void acceptSocket(int sockfd, std::vector<recv_t>& fds);
 
 #endif // TCP_SERVER_HPP
