@@ -76,7 +76,18 @@
 		"numbers": "cpp",
 		"__tree": "cpp",
 		"map": "cpp",
-		"filesystem": "cpp"
+		"filesystem": "cpp",
+		"condition_variable": "cpp",
+		"queue": "cpp",
+		"thread": "cpp",
+		"cinttypes": "cpp",
+		"hashtable": "cpp",
+		"stop_token": "cpp"
 	},
-	"C_Cpp.errorSquiggles": "Disabled"
+	"C_Cpp.errorSquiggles": "Disabled",
+	"workbench.panel.defaultLocation": "right",
+	"editor.minimap.enabled": false,
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"files.autoSave": "afterDelay"
 }
