@@ -22,19 +22,23 @@ void loop()
 	std::vector<recv_t> writefds;
 
 	fd_set master;
+	fd_set wrmaster;
 
 	FD_ZERO(&master);
+	FD_ZERO(&wrmaster);
 	FD_ZERO(&readfd);
 	FD_ZERO(&writefd);
 
 	FD_SET(fd, &master);
-	FD_SET(sockfd, &readfd);
+	FD_SET(fd, &readfd);
 
 	int max_fd = fd;
 
 	while (1)
 	{
 		readfd = master;
+		writefd = wrmaster;
+
 		struct sockaddr_in accepted;
 		socklen_t size = sizeof accepted;
 
@@ -48,29 +52,44 @@ void loop()
 			continue ;  
 		}
 
-		if (FD_ISSET(fd, &readfd))
+		for (int i = 3; i <= max_fd; ++i)
 		{
 
-			int new_fd = accept(fd, (struct sockaddr *)&accepted, &size);
-
-			char buf[1000];
-
-			ssize_t rec = recv(new_fd, buf, 999, 0);
-
-			if (rec < 0)
+			if (FD_ISSET(i, &readfd))
 			{
-				// perror("recv");
-				close(new_fd);
-				continue ;
+				if (i == fd)
+				{
+					int new_fd = accept(fd, (struct sockaddr *)&accepted, &size);
+
+					FD_SET(new_fd, &master);
+
+					if (new_fd > max_fd)
+						max_fd = new_fd;
+				}
+				else
+				{
+					char buf[MAX_BUF + 1];
+
+					ssize_t rec = recv(i, buf, MAX_BUF, 0);
+
+					if (rec <= 0)
+					{
+						// perror("recv")
+						FD_CLR(i, &master);
+						break ;
+					}
+
+					buf[rec] = 0;
+
+					std::cout << buf << "\n";
+
+					send(i, listDirectiory(buf).c_str(), listDirectiory(buf).size(), 0);
+
+					close(i);
+
+					FD_CLR(i, &master);
+				}
 			}
-
-			buf[rec] = 0;
-
-			std::cout << buf << "\n";
-
-			send(new_fd, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:18\n\n<h1>Not found</h1>", strlen("HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:18\n\n<h1>Not found</h1>"), 0);
-
-			close(new_fd);
 
 		}
 		// int max_fd = writefds.size() == 0 ? fd : std::max(std::max_element(writefds.begin(), writefds.end())->sockfd, fd);
