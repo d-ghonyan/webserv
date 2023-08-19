@@ -92,7 +92,6 @@ void loop()
 
 		// for (std::vector<recv_t>::iterator it = start; it != writefds.end(); ++it)
 		// {
-		// 	std::cout << "closing socket naxuy\n";
 		// 	close(it->sockfd);
 		// }
 
