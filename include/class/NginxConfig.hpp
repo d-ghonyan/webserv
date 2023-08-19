@@ -4,6 +4,7 @@
 
 # include <cmath>
 # include <stack>
+# include <map>
 # include <vector>
 # include <fstream>
 # include <sstream>
@@ -18,6 +19,10 @@
 
 # define DEFAULT_FILE_PATH "conf.d/webserv.conf"
 
+typedef	std::string hostname;
+typedef	std::string address;
+typedef	std::map<hostname, address>	Hosts;
+
 struct NonDigit
 {
 	bool operator()(char c){ return !::isdigit(c); }
@@ -26,6 +31,7 @@ struct NonDigit
 class NginxConfig
 {
 private:
+	Hosts hosts;
 	const std::string path;
 	std::vector<Server> servers;
 
@@ -49,6 +55,13 @@ private:
 	bool	containsSpecialChar(const std::string& token);
 	bool	isValidErrorCode(const std::string& code);
 	size_t	get_actual_value_cmbs(const std::string& token);
+	void	getHosts();
+	void	getHostValues(const std::string& line, std::string& key, std::string &value) const;
+	void	validationOfListen(std::string token, std::string& host, std::string& port) const;
+	bool	isValidHost(const std::string& _host);
+	bool	isValidPort(const std::string& _port);
+
+
 
 
 
@@ -64,6 +77,7 @@ private: // utils
 	void setter(Location& location, const std::string& name, const std::string& val);
 	void setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
 	void setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
+
 
 public:
 	NginxConfig();

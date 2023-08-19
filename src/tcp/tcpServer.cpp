@@ -45,7 +45,9 @@ void loop()
 		{
 			if (FD_ISSET(writefds[i].sockfd, &writefd))
 			{
+				// std::cout << "sending file \n";
 				sendFile(writefds[i]);
+				// std::cout << "file sent\n";
 			}
 		}
 		recv_t temp;
@@ -58,5 +60,10 @@ void loop()
 			close(it->sockfd);
 
 		writefds.erase(start, writefds.end());
+
+		for (size_t i = 0; i < writefds.size(); ++i)
+		{
+			std::cout << writefds[i].sockfd << " hello\n";
+		}
 	}
 }

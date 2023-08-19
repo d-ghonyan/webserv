@@ -82,7 +82,8 @@
 		"thread": "cpp",
 		"cinttypes": "cpp",
 		"hashtable": "cpp",
-		"stop_token": "cpp"
+		"stop_token": "cpp",
+		"__memory": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "Disabled",
 	"workbench.panel.defaultLocation": "right",

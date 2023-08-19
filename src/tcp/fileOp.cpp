@@ -34,7 +34,7 @@ std::string listDirectiory(const char recvbuf[MAX_BUF + 1])
 	while (entry)
 	{
 		std::cout << entry->d_name << "\n";
-		ret += "<li>";//<a href='";
+		ret += "<li>";//<a href='http://" + host + ":" + port + url + filename;
 		ret += entry->d_name;
 		ret += "</li>";//<a href='";
 		entry = readdir(dir);
