@@ -24,33 +24,55 @@ void loop()
 	fd_set master;
 
 	FD_ZERO(&master);
+	FD_ZERO(&readfd);
+	FD_ZERO(&writefd);
+
 	FD_SET(fd, &master);
+	FD_SET(sockfd, &readfd);
+
+	int max_fd = fd;
 
 	while (1)
 	{
+		readfd = master;
 		struct sockaddr_in accepted;
 		socklen_t size = sizeof accepted;
 
-		int new_fd = accept(fd, (struct sockaddr *)&accepted, &size);
+		int sel = select(max_fd + 1, &readfd, &writefd, NULL, NULL);
 
-		char buf[1000];
-
-		ssize_t rec = recv(new_fd, buf, 999, 0);
-
-		if (rec < 0)
-		{
-			// perror("recv");
-			close(new_fd);
+		if (sel == 0)
 			continue ;
+		if (sel < 0)
+		{
+			perror("select");
+			continue ;  
 		}
 
-		buf[rec] = 0;
+		if (FD_ISSET(fd, &readfd))
+		{
 
-		std::cout << buf << "\n";
+			int new_fd = accept(fd, (struct sockaddr *)&accepted, &size);
 
-		send(new_fd, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:18\n\n<h1>Not found</h1>", strlen("HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:18\n\n<h1>Not found</h1>"), 0);
+			char buf[1000];
 
-		close(new_fd);
+			ssize_t rec = recv(new_fd, buf, 999, 0);
+
+			if (rec < 0)
+			{
+				// perror("recv");
+				close(new_fd);
+				continue ;
+			}
+
+			buf[rec] = 0;
+
+			std::cout << buf << "\n";
+
+			send(new_fd, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:18\n\n<h1>Not found</h1>", strlen("HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:18\n\n<h1>Not found</h1>"), 0);
+
+			close(new_fd);
+
+		}
 		// int max_fd = writefds.size() == 0 ? fd : std::max(std::max_element(writefds.begin(), writefds.end())->sockfd, fd);
 
 		// readfd = master;
