@@ -9,6 +9,10 @@ void acceptSocket(int sockfd, std::vector<recv_t>& fds)
 
 	int their_fd = accept(sockfd, (struct sockaddr *)&their_addr, &their_addr_size);
 
+	std::cout << "accepted a request\n";
+
+	fcntl(their_fd, F_SETFL, O_NONBLOCK);
+
 	if (their_fd < 0)
 		perror("oh no i had to change the error message");
 
@@ -18,14 +22,33 @@ void acceptSocket(int sockfd, std::vector<recv_t>& fds)
 
 	if ((received = recv(their_fd, rc.buf, MAX_BUF, 0)) < 0)
 	{
+		// std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah\n";
 		perror ("recv");
-		throw std::runtime_error("recv");
+		// rc.buf[0] = 0;
+		// rc.sendbuf = "";
+		// fds.push_back(rc);
+
+		close(their_fd);
+
+		return ;
+		// throw std::runtime_error("recv");
 	}
+	std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah22222222222222222\n";
 
 	rc.buf[received] = 0;
 	// rc.sendbuf = openFile(rc.buf, "www/");
 	rc.sendbuf = listDirectiory(rc.buf);
-	fds.push_back(rc);
+
+	ssize_t ret = send(rc.sockfd, rc.sendbuf.c_str() + rc.offset, rc.sendbuf.size() - rc.offset, 0);
+
+	if (ret < 0)
+	{
+		perror("send");
+		throw std::runtime_error("send");
+	}
+
+	close(rc.sockfd);
+	// fds.push_back(rc);
 }
 
 int getSocketListener(const char * name, const char *port)
@@ -54,6 +77,7 @@ int getSocketListener(const char * name, const char *port)
 	}
 
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
+	fcntl(fd, F_SETFL, O_NONBLOCK);
 
 	if (bind(fd, list->ai_addr, list->ai_addrlen))
 	{
@@ -61,7 +85,7 @@ int getSocketListener(const char * name, const char *port)
 		throw std::runtime_error("bind error");
 	}
 
-	if (listen(fd, 4096) < 0) // too much?
+	if (listen(fd, 10) < 0) // too much?
 	{
 		perror("listen");
 		throw std::runtime_error("listen error");

@@ -70,7 +70,7 @@ void	NginxConfig::validationOfListen(std::string token, std::string& host, std::
 		{
 			
 		}
-		else if (is)
+		// else if (is)
 		// else if (hosts.find(token) == hosts.end())
 		// 	throw std::runtime_error("Host " + token + " not found");
 
@@ -89,37 +89,37 @@ void	NginxConfig::validationOfListen(std::string token, std::string& host, std::
 	}
 }
 
-bool	NginxConfig::isValidHost(const std::string& host)
+bool	NginxConfig::isValidHost(const std::string& host) const
 {
 	std::vector<std::string>	ip_vector(4, "0");
 	size_t	count = 0;
 	
-	for (size_t i = 1; i < host.length(); i++)
-	{
+	// for (size_t i = 1; i < host.length(); i++)
+	// {
 		
-	}
+	// }
 	
 
-	for (int i = 0; (i = s.find('.', i)) != std::string::npos; i++) 
-	{
-		count++;
-    }
+	// for (int i = 0; (i = s.find('.', i)) != std::string::npos; i++) 
+	// {
+	// 	count++;
+    // }
 	
 
 
 }
 
-bool	NginxConfig::isValidPort(const std::string& _port)
+bool	NginxConfig::isValidPort(const std::string& _port) const
 {
-	std::string::const_iterator start	= port.begin();
-	std::string::const_iterator end		= port.end();
+	std::string::const_iterator start	= _port.begin();
+	std::string::const_iterator end		= _port.end();
 	std::string::const_iterator it		= std::find_if(start, end, NonDigit());
 	
 	if (it != end)
 		return false;
 
 	size_t	p = 0;
-	std::stringstream ss(port);
+	std::stringstream ss(_port);
 	ss >> p;
 	if (p > 65535)
 		return false;			

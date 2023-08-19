@@ -58,8 +58,8 @@ private:
 	void	getHosts();
 	void	getHostValues(const std::string& line, std::string& key, std::string &value) const;
 	void	validationOfListen(std::string token, std::string& host, std::string& port) const;
-	bool	isValidHost(const std::string& _host);
-	bool	isValidPort(const std::string& _port);
+	bool	isValidHost(const std::string& _host) const ;
+	bool	isValidPort(const std::string& _port) const ;
 
 
 

@@ -90,5 +90,6 @@
 	"editor.minimap.enabled": false,
 	"editor.insertSpaces": false,
 	"editor.detectIndentation": false,
-	"files.autoSave": "afterDelay"
+	"files.autoSave": "afterDelay",
+	"editor.selectionClipboard": false
 }

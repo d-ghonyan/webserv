@@ -25,7 +25,7 @@ std::string listDirectiory(const char recvbuf[MAX_BUF + 1])
 
 	if ((dir = opendir(name.c_str())) == NULL)
 	{
-		perror("oh no opendir");
+		perror(("oh no opendir: " + std::string(name)).c_str());
 		return "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:18\n\n<h1>Not found</h1>";
 	}
 
@@ -33,7 +33,7 @@ std::string listDirectiory(const char recvbuf[MAX_BUF + 1])
 
 	while (entry)
 	{
-		std::cout << entry->d_name << "\n";
+		std::cout << "./" << entry->d_name << "\n";
 		ret += "<li>";//<a href='http://" + host + ":" + port + url + filename;
 		ret += entry->d_name;
 		ret += "</li>";//<a href='";

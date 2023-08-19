@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		// loop();
+		loop();
 		config.parse();
 	}
 	catch(const std::exception& e)
