@@ -119,7 +119,6 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		{
 			throw std::runtime_error("expected server block, found " + tokens[i]);
 		}
-
 		if (tokens[i] == "server")
 		{
 			servers.push_back(Server());

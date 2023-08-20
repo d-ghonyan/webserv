@@ -21,9 +21,7 @@
 
 # define IS_OUTSIDE_LOCATION(token, prevToken) (strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0)
 
-typedef	std::string hostname;
-typedef	std::string address;
-typedef	std::map<hostname, address>	Hosts;
+typedef	std::map<std::string, std::string> Hosts;
 
 class NginxConfig
 {
