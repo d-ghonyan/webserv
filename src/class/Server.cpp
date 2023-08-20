@@ -2,9 +2,11 @@
 
 Server::Server(): max_body_size(1), listen(), error_pages(), server_names(), locations() { }
 
-void Server::pushListen(const std::string& l)
+void Server::pushListen(const std::string& host, const std::string& port)
 {
-	listen.push_back(l);
+	if (std::find(listen.begin(), listen.end(), listen_t(host, port)) != listen.end())
+		throw std::runtime_error("duplicate listen " + host + ":" + port);
+	listen.push_back(listen_t(host, port));
 }
 
 size_t Server::getMaxBodySize() const
@@ -50,7 +52,8 @@ void Server::print_everything()
 	std::cout << "--------\n";
 }
 
-void Server::printVectors(const std::vector<std::string>& vec)
+template <typename T>
+void Server::printVectors(const std::vector<T>& vec)
 {
 	for (size_t i = 0; i < vec.size(); ++i)
 	{

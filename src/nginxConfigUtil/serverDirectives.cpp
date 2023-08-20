@@ -31,10 +31,13 @@ void NginxConfig::listen(const std::vector<std::string>& tokens, size_t& server_
 	{
 		std::string	host("");
 		std::string	port("8080");
+
 		std::cout << "----> " << tokens[count] << "<-------\n";
 		validationOfListen(tokens[count], host, port);
+	
+		servers[server_index].pushListen(host, port);
 
-		servers[server_index].pushListen(tokens[count]);
+		// servers[server_index].pushListen(tokens[count]);
 		++count;
 	}
 

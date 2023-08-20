@@ -47,14 +47,14 @@ private:
 	bool	containsSpecialChar(const std::string& token);
 	bool	isValidErrorCode(const std::string& code);
 	void	getHosts();
-	void	getHostValues(const std::string& line, std::string& key, std::string &value) const;
+	void	getHostValues(const std::string& line, std::string& key, std::string &value) const ;
 	size_t	getActualBodySize(const std::string& token);
 
 private:
-	bool	isValidHost(const std::string& _host) const ;
+	int		isValidIP(const std::string& host) const ;
 	bool	isValidPort(const std::string& _port) const ;
-	void	validationOfListen(std::string token, std::string& host, std::string& port) const;
-
+	void	validationOfListen(std::string token, std::string& host, std::string& port) const ;
+	std::string	storeIP(const std::string& _host, int count) const ;
 
 private:
 	void	listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
