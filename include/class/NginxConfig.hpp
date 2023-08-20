@@ -43,7 +43,6 @@ private:
 	void	generateTokens(const std::string &file);
 	void	parseLocations(std::vector<std::string> &tokens);
 	void	check_braces(const std::vector<std::string> tokens);
-	bool	isInsideLocation(const std::string& token, const std::string& prevToken);
 	bool	isInvalidValue(const std::string&);
 	bool	containsSpecialChar(const std::string& token);
 	bool	isValidErrorCode(const std::string& code);
