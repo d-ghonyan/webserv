@@ -1,15 +1,11 @@
 #include "tcpServer.hpp"
 
-void init_sets(const int& sockfd, const std::vector<recv_t>& writefds, fd_set& readfd, fd_set& writefd)
+void init_sets(const int& sockfd, fd_set& master, fd_set& wrmaster)
 {
-	FD_ZERO(&readfd);
-	FD_ZERO(&writefd);
+	FD_ZERO(&master);
+	FD_ZERO(&wrmaster);
 
-	FD_SET(sockfd, &readfd);
-	// for (size_t i = 0; i < writefds.size(); ++i)
-	// {
-	// 	FD_SET(writefds[i].sockfd, &writefd);
-	// }
+	FD_SET(sockfd, &master);
 }
 
 void loop()
@@ -19,18 +15,12 @@ void loop()
 	fd_set readfd;
 	fd_set writefd;
 
-	std::vector<recv_t> writefds;
+	std::map<int, std::string> writefds;
 
 	fd_set master;
 	fd_set wrmaster;
 
-	FD_ZERO(&master);
-	FD_ZERO(&wrmaster);
-	FD_ZERO(&readfd);
-	FD_ZERO(&writefd);
-
-	FD_SET(fd, &master);
-	FD_SET(fd, &readfd);
+	init_sets(fd, master, wrmaster);
 
 	int max_fd = fd;
 
@@ -74,73 +64,31 @@ void loop()
 
 					if (rec <= 0)
 					{
-						// perror("recv")
+						close(i);
 						FD_CLR(i, &master);
-						break ;
+						FD_CLR(i, &wrmaster);
+						writefds.erase(i);
 					}
+					else
+					{
+						buf[rec] = 0;
 
-					buf[rec] = 0;
-
-					std::cout << buf << "\n";
-
-					send(i, listDirectiory(buf).c_str(), listDirectiory(buf).size(), 0);
-
-					close(i);
-
-					FD_CLR(i, &master);
+						std::cout << buf << "\n";
+						writefds[i] = buf;
+						FD_SET(i, &wrmaster);
+					}
 				}
+			}
+			if (FD_ISSET(i, &writefd))
+			{
+				if(send(i, listDirectiory(writefds[i].c_str()).c_str(), listDirectiory(writefds[i].c_str()).size(), 0) < 0)
+					perror("send");
+				close(i);
+				FD_CLR(i, &master);
+				FD_CLR(i, &wrmaster);
+				writefds.erase(i);
 			}
 
 		}
-		// int max_fd = writefds.size() == 0 ? fd : std::max(std::max_element(writefds.begin(), writefds.end())->sockfd, fd);
-
-		// readfd = master;
-		// // init_sets(fd, writefds, readfd, writefd);
-
-		// int ready_count = select(max_fd + 1, &readfd, &writefd, NULL, NULL);
-
-		// std::cout << "SELECT RETURNED...\n";
-
-		// if (ready_count < 0)
-		// {
-		// 	perror("select");
-		// 	throw std::runtime_error("select error");
-		// }
-
-		// if (ready_count == 0)
-		// 	continue ;
-
-		// if (FD_ISSET(fd, &readfd))
-		// {
-		// 	std::cout << "someone is talking to me\n";
-		// 	acceptSocket(fd, writefds);
-		// }
-
-		// for (size_t i = 0; i < writefds.size(); ++i)
-		// {
-		// 	if (FD_ISSET(writefds[i].sockfd, &writefd))
-		// 	{
-		// 		std::cout << "sending file \n";
-		// 		sendFile(writefds[i]);
-		// 		std::cout << "file sent\n";
-		// 	}
-		// }
-		// recv_t temp;
-
-		// temp.finished = true;
-
-		// std::vector<recv_t>::iterator start = std::remove(writefds.begin(), writefds.end(), temp);
-
-		// for (std::vector<recv_t>::iterator it = start; it != writefds.end(); ++it)
-		// {
-		// 	close(it->sockfd);
-		// }
-
-		// writefds.erase(start, writefds.end());
-
-		// for (size_t i = 0; i < writefds.size(); ++i)
-		// {
-		// 	std::cout << writefds[i].sockfd << " hello\n";
-		// }
 	}
 }

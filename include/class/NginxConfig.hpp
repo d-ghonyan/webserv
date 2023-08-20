@@ -2,9 +2,9 @@
 
 # define CLASS_NGINX_CONFIG_HPP
 
+# include <map>
 # include <cmath>
 # include <stack>
-# include <map>
 # include <vector>
 # include <fstream>
 # include <sstream>
@@ -14,19 +14,16 @@
 # include <errno.h>
 # include <string.h>
 
-# include "Token.hpp"
+# include "Util.hpp"
 # include "Server.hpp"
 
 # define DEFAULT_FILE_PATH "conf.d/webserv.conf"
 
+# define IS_OUTSIDE_LOCATION(token, prevToken) (strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0)
+
 typedef	std::string hostname;
 typedef	std::string address;
 typedef	std::map<hostname, address>	Hosts;
-
-struct NonDigit
-{
-	bool operator()(char c){ return !::isdigit(c); }
-};
 
 class NginxConfig
 {
@@ -48,43 +45,37 @@ private:
 	void	generateTokens(const std::string &file);
 	void	parseLocations(std::vector<std::string> &tokens);
 	void	check_braces(const std::vector<std::string> tokens);
-	bool	alreadyExistsLocation(std::string token, size_t server_index);
-	bool	isNotContinueOfPrevious(std::string token, std::string prevToken);
+	bool	isInsideLocation(const std::string& token, const std::string& prevToken);
 	bool	isInvalidValue(const std::string&);
-	bool	isValidErrorPage(const std::string& err_page);
 	bool	containsSpecialChar(const std::string& token);
 	bool	isValidErrorCode(const std::string& code);
-	size_t	get_actual_value_cmbs(const std::string& token);
 	void	getHosts();
 	void	getHostValues(const std::string& line, std::string& key, std::string &value) const;
-	void	validationOfListen(std::string token, std::string& host, std::string& port) const;
+	size_t	getActualBodySize(const std::string& token);
+
+private:
 	bool	isValidHost(const std::string& _host) const ;
 	bool	isValidPort(const std::string& _port) const ;
+	void	validationOfListen(std::string token, std::string& host, std::string& port) const;
 
 
+private:
+	void	listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
+	void	errorPage(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
+	void	serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
+	void	maxBodySize(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
 
-
-
-
-
-
-private: // utils
-	void listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
-	void errorPage(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
-	void serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
-	void maxBodySize(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
-
-	void setter(Location& location, const std::string& name, const std::string& val);
-	void setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
-	void setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
-
+	void	setter(Location& location, const std::string& name, const std::string& val);
+	void	setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
+	void	setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
+	void	storeLocation(const std::vector<std::string>& tokens, std::vector<std::string>& current_location, size_t& location_level, const size_t& server_index, size_t& i);
 
 public:
 	NginxConfig();
 	NginxConfig(const std::string &file_path);
 
-	void parse();
-	void print() const;
+	void	parse();
+	void	print() const;
 
 	~NginxConfig();
 };

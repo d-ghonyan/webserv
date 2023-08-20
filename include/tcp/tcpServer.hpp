@@ -12,6 +12,7 @@
 # include <netinet/in.h>
 # include <sys/select.h>
 
+# include <map>
 # include <vector>
 # include <sstream>
 # include <fstream>

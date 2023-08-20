@@ -47,42 +47,6 @@ void NginxConfig::parse()
 	generateTokens(file);
 }
 
-void NginxConfig::getHostValues(const std::string& line, std::string& key, std::string &value) const
-{
-	size_t i = 0;
-
-	while (line[i] && std::isspace(line[i]))
-		++i;
-
-	while (line[i] && !std::isspace(line[i]))
-		key.push_back(line[i++]);
-
-	while (line[i] && std::isspace(line[i]))
-		++i;
-
-	while (line[i] && !std::isspace(line[i]))
-		value.push_back(line[i++]);
-}
-
-void NginxConfig::getHosts()
-{
-	std::ifstream file("/etc/hosts");
-
-	if (file.fail())
-		return;
-
-	std::string line;
-	while (std::getline(file, line))
-	{
-		std::string key;
-		std::string value;
-		std::stringstream ss(line);
-
-		getHostValues(line, key, value);
-		hosts.insert(std::make_pair(value, key));
-	}
-}
-
 void NginxConfig::generateTokens(const std::string &file)
 {
 	std::vector<std::string> tokens;
@@ -173,9 +137,7 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		else if (tokens[i] == "client_max_body_size")
 			maxBodySize(tokens, server_index, location_level, i);
 		else if (tokens[i] == "error_page")
-		{
 			errorPage(tokens, server_index, location_level, i);
-		}
 		else if (contains(single_value_directives_location, tokens[i]))
 		{
 			if (location_level <= 1)
@@ -192,42 +154,7 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		{
 			if (tokens[i + 1] == "{" || tokens[i + 2] != "{")
 				throw std::runtime_error("invalid location directive");
-			if (location_level == 1)
-			{
-				++i;
-				current_location.push_back(tokens[i]);
-				
-				Location temp(tokens[i], "", location_level);
-
-				LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
-				if (it != servers[server_index].locations.end() && it->second == temp)
-					throw (std::runtime_error("Dublicate location ay txa e o"));
-					
-				servers[server_index].locations.insert(std::make_pair(tokens[i], temp));
-
-				++i;
-				++location_level;
-			}
-			else
-			{
-				++i;
-				if (isNotContinueOfPrevious(tokens[i], current_location.back()))
-				{
-					throw (std::runtime_error("outside location " + tokens[i]));
-				}
-
-				Location temp(tokens[i], current_location.back(), location_level);
-
-				LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
-
-				if (it != servers[server_index].locations.end() && it->second == temp)
-					throw (std::runtime_error("Dublicate location ay txa e o"));
-
-				servers[server_index].locations.insert(std::make_pair(tokens[i], temp));
-				current_location.push_back(tokens[i]);
-				++i;
-				++location_level;
-			}
+			storeLocation(tokens, current_location, location_level, server_index, i);
 		}
 		else
 		{
@@ -256,11 +183,6 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 	}
 
 	print();
-}
-
-bool NginxConfig::isNotContinueOfPrevious(std::string token, std::string prevToken)
-{
-	return (strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0);
 }
 
 NginxConfig::~NginxConfig() { }
