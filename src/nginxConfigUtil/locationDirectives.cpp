@@ -4,7 +4,7 @@ void NginxConfig::setter(Location& location, const std::string& name, const std:
 {
 	if (name == "autoindex")
 	{
-		if (val != "on" && val  != "off")
+		if (val != "on" && val != "off")
 			throw std::runtime_error("invalid value of autoindex directive");
 		location.setAutoindex(val);
 	}
@@ -19,7 +19,11 @@ void NginxConfig::setter(Location& location, const std::string& name, const std:
 	else if (name == "index")
 		location.pushIndexes(val);
 	else if (name == "allow_methods")
+	{
+		if (!contains(allowed_methods, val))
+			throw std::runtime_error("invalid value of allow_methods directive");
 		location.pushMethods(val);
+	}
 }
 
 void NginxConfig::setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i)
@@ -68,10 +72,11 @@ void NginxConfig::storeLocation(const std::vector<std::string>& tokens, std::vec
 		Location temp(tokens[i], "", location_level);
 
 		LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
+
 		if (it != servers[server_index].locations.end() && it->second == temp)
-			throw (std::runtime_error("Dublicate location ay txa e o"));
-			
-		servers[server_index].locations.insert(std::make_pair(tokens[i], temp));
+			throw std::runtime_error("Dublicate location ay txa e o");
+
+		servers[server_index].locations[tokens[i]] = temp;
 
 		++i;
 		++location_level;
@@ -81,17 +86,18 @@ void NginxConfig::storeLocation(const std::vector<std::string>& tokens, std::vec
 		++i;
 		if (IS_OUTSIDE_LOCATION(tokens[i], current_location.back()))
 		{
-			throw (std::runtime_error(tokens[i] + " is outside location " + current_location.back()));
+			throw std::runtime_error(tokens[i] + " is outside location " + current_location.back());
 		}
 
-		Location temp(tokens[i], current_location.back(), location_level);
-
 		LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
+		
+		Location temp(servers[server_index].locations[current_location.back()]);// = it->second;
 
 		if (it != servers[server_index].locations.end() && it->second == temp)
-			throw (std::runtime_error("Dublicate location ay txa e o"));
+			throw std::runtime_error("Dublicate location ay txa e o");
 
 		servers[server_index].locations.insert(std::make_pair(tokens[i], temp));
+		// servers[server_index].locations[tokens[i]] do we need location level ?
 		current_location.push_back(tokens[i]);
 		++i;
 		++location_level;

@@ -7,7 +7,7 @@ INCDIR		= include/
 SRCDIR		= $(addprefix $(SDIR), $(MODULES))
 OBJDIR		= $(addprefix $(ODIR), $(MODULES))
 
-CXXFLAGS	= -Wall -Wextra -g -std=c++98 # -Werror
+CXXFLAGS	= -Wall -Wextra -g -std=c++98# -fsanitize=address# -Werror
 INCLUDES	= $(addprefix -I $(INCDIR), $(MODULES))
 
 SRCS		= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.cpp))

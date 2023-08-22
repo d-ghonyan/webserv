@@ -32,6 +32,7 @@ private:
 
 private:
 	static char const * const allowed_tokens[];
+	static char const * const allowed_methods[];
 	static char const * const allowed_names_server[];
 	static char const * const allowed_names_location[];
 	static char const * const array_value_directives_location[];

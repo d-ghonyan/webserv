@@ -1,15 +1,15 @@
 #include "Location.hpp"
 
 Location::Location():
-	_locaction_level(1), _cgi(), _root(), _route(), _autoindex("off"), _httpRedir(),
-	_upload_dir(), _indexes(), _allowed_methods(), parent()
+	_locaction_level(1), _cgi("/usr/bin/python3"), _root("www/"), _route(""), _autoindex("off"), _httpRedir(""),
+	_upload_dir("/www/upload"), _indexes(1, "index.html"), _allowed_methods(1, "GET"), parent("barev")
 {
 
 }
 
 Location::Location(const std::string& route, std::string p, int loc_l):
-	_locaction_level(loc_l),	_cgi(), _root(), _route(route), _autoindex("off"), 
-	_httpRedir(), _upload_dir(), _indexes(), _allowed_methods(), parent(p)
+	_locaction_level(loc_l), _cgi("/usr/bin/python3"), _root("www/"), _route(route), _autoindex("off"), _httpRedir(""),
+	_upload_dir("/www/upload"), _indexes(1, "index.html"), _allowed_methods(1, "GET"), parent(p)
 {
 
 }
@@ -19,6 +19,20 @@ Location::Location(const std::string& route):
 	_httpRedir(), _upload_dir(), _indexes(), _allowed_methods(), parent()
 {
 
+}
+
+Location::Location(const Location& other)
+{
+	_cgi = other._cgi;
+	_root = other._root;
+	_route = other._route;
+	_indexes = other._indexes;
+	_autoindex = other._autoindex;
+	_httpRedir = other._httpRedir;
+	_upload_dir = other._upload_dir;
+	_allowed_methods = other._allowed_methods;
+	_locaction_level = other._locaction_level + 1;
+	parent = "copy constructor baby, no parent needed";
 }
 
 void Location::pushIndexes(const std::string& index)
@@ -55,11 +69,6 @@ void Location::setUploadDir(const std::string& dir)
 {
 	_upload_dir = dir;
 }
-
-// void Location::setParent(std::list<Location>::iterator it)
-// {
-// 	parent = it;
-// }
 
 std::string Location::getroute() const
 {

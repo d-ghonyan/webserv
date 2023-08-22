@@ -19,6 +19,13 @@ char const * const NginxConfig::array_value_directives_location[] = {
 	NULL,
 };
 
+char const * const NginxConfig::allowed_methods[] = {
+	"GET",
+	"POST",
+	"DELETE",
+	NULL,
+};
+
 bool NginxConfig::contains(char const * const allowed[], const std::string &token)
 {
 	for (size_t i = 0; allowed[i]; ++i)

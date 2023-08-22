@@ -7,6 +7,9 @@ void NginxConfig::getHostValues(const std::string& line, std::string& key, std::
 	while (line[i] && std::isspace(line[i]))
 		++i;
 
+	if (line[i] == '#')
+		return ;
+
 	while (line[i] && !std::isspace(line[i]))
 		key.push_back(line[i++]);
 

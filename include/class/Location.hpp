@@ -46,6 +46,7 @@ public:
 	Location();
 	Location(const std::string& route);
 	Location(const std::string& route, std::string p, int loc_l);
+	Location(const Location& other);
 
 	std::string getroute() const ;
 	std::string getParent() const ;
