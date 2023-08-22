@@ -10,7 +10,7 @@ void NginxConfig::validationOfListen(std::string token, std::string& host, std::
 		if (token.find(':') != token.rfind(':'))
 			throw std::runtime_error("Invalid count of colons in listen directive");
 
-		std::stringstream	ss(token);
+		std::stringstream ss(token);
 
 		std::getline(ss, _host, ':');
 		std::getline(ss, _port);
@@ -29,6 +29,7 @@ void NginxConfig::validationOfListen(std::string token, std::string& host, std::
 
 		if (!isValidPort(_port))
 			throw std::runtime_error("Invalid port in listen directive");
+		port = _port;
 	}
 	else
 	{
@@ -76,17 +77,10 @@ std::string NginxConfig::storeIP(const std::string& host, int count) const
 
 bool NginxConfig::isValidPort(const std::string& _port) const
 {
-	std::string::const_iterator start	= _port.begin();
-	std::string::const_iterator end		= _port.end();
-	std::string::const_iterator it		= std::find_if(start, end, NonDigit());
-	
-	if (it != end)
+	if (std::find_if(_port.begin(), _port.end(), NonDigit()) != _port.end())
 		return false;
 
-	size_t	p = 0;
-	std::stringstream ss(_port);
-	ss >> p;
-	if (p > 65535)
-		return false;			
-	return true;
+	int p = my_stoi(_port);
+
+	return !(p <= 0 || p > 65535);
 }

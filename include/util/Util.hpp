@@ -2,8 +2,9 @@
 # define UTIL_HPP
 
 # include <vector>
-# include <iostream>
 # include <sstream>
+# include <iostream>
+# include <algorithm>
 
 typedef struct listen_s
 {
@@ -18,6 +19,7 @@ typedef struct listen_s
 
 std::ostream& operator<<(std::ostream& os, const listen_t& ls);
 
+int my_stoi(const std::string& s);
 std::vector<std::string> splitIP(const std::string& line, int delim_count, char delim); // tox lrvi
 
 struct NonDigit

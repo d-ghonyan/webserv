@@ -32,3 +32,21 @@ std::vector<std::string> splitIP(const std::string& line, int delim_count, char 
 
 	return ret;
 }
+
+// only positive numbers, -1 on error
+int my_stoi(const std::string& s)
+{
+	if (s.size() > 10 || (s.size() == 10 && s > "2147483647")
+		|| std::find_if(s.begin(), s.end(), NonDigit()) != s.end())
+		return (-1);
+	
+	int res = 0;
+
+	for (size_t i = 0; i < s.size(); ++i)
+	{
+		res *= 10;
+		res += s[i] - 48;
+	}
+
+	return res;
+}

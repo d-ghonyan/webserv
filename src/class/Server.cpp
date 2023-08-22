@@ -1,33 +1,34 @@
 #include "Server.hpp"
 
-Server::Server(): max_body_size(1), listen(), error_pages(), server_names(), locations() { }
+Server::Server(): max_body_size(DEFAULT_MAX_BODY_SIZE), listen(), error_pages(), server_names(), locations()
+{
+	// server_names.push_back(DEFAULT_SERVER_NAME);
+	// listen.push_back(listen_t(DEFAULT_HOST, DEFAULT_PORT));
+}
 
 void Server::pushListen(const std::string& host, const std::string& port)
 {
-	if (std::find(listen.begin(), listen.end(), listen_t(host, port)) != listen.end())
+	listen_t a = listen_t(host, port);
+
+	if (std::find(listen.begin(), listen.end(), a) != listen.end())
 		throw std::runtime_error("duplicate listen " + host + ":" + port);
+
 	listen.push_back(listen_t(host, port));
 }
 
-size_t Server::getMaxBodySize() const
-{
-	return max_body_size;
-}
+void Server::setMaxBodySize(size_t	l) { max_body_size = l; }
 
-void Server::setMaxBodySize(size_t	l)
-{
-	max_body_size = l;
-}
+void Server::pushServerName(const std::string& server_name) { server_names.push_back(server_name); }
 
-void Server::pushServerName(const std::string& server_name)
-{
-	server_names.push_back(server_name);
-}
+void Server::pushErrorPage(int error_code, const std::string& error_page) { error_pages[error_code] = error_page; }
 
-void Server::pushErrorPage(ErrorCode error_code, const std::string& error_page)
-{
-	error_pages[error_code] = error_page;
-}
+size_t Server::getMaxBodySize() const { return max_body_size; }
+
+const std::vector<listen_t>& Server::getListens() const { return listen; }
+
+const std::map<int, std::string>& Server::getErrorPages() const { return error_pages; }
+
+const std::vector<std::string>& Server::getServerNames() const { return server_names; }
 
 void Server::print_everything()
 {

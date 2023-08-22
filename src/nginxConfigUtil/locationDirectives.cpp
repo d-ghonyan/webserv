@@ -69,7 +69,7 @@ void NginxConfig::storeLocation(const std::vector<std::string>& tokens, std::vec
 		++i;
 		current_location.push_back(tokens[i]);
 		
-		Location temp(tokens[i], "", location_level);
+		Location temp(location_level);
 
 		LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
 
@@ -91,13 +91,14 @@ void NginxConfig::storeLocation(const std::vector<std::string>& tokens, std::vec
 
 		LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
 		
-		Location temp(servers[server_index].locations[current_location.back()]);// = it->second;
+		Location temp(servers[server_index].locations[current_location.back()]);
+		
+		temp.setLevel(location_level);
 
 		if (it != servers[server_index].locations.end() && it->second == temp)
 			throw std::runtime_error("Dublicate location ay txa e o");
 
 		servers[server_index].locations.insert(std::make_pair(tokens[i], temp));
-		// servers[server_index].locations[tokens[i]] do we need location level ?
 		current_location.push_back(tokens[i]);
 		++i;
 		++location_level;

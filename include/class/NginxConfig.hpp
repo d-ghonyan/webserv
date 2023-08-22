@@ -28,26 +28,22 @@ class NginxConfig
 private:
 	Hosts hosts;
 	const std::string path;
-	std::vector<Server> servers;
 
 private:
-	static char const * const allowed_tokens[];
 	static char const * const allowed_methods[];
-	static char const * const allowed_names_server[];
-	static char const * const allowed_names_location[];
 	static char const * const array_value_directives_location[];
 	static char const * const single_value_directives_location[];
 
 	bool contains(char const * const allowed_tokens[], const std::string& token);
 
 private:
+	void	getHosts();
 	void	generateTokens(const std::string &file);
 	void	parseLocations(std::vector<std::string> &tokens);
 	void	check_braces(const std::vector<std::string> tokens);
 	bool	isInvalidValue(const std::string&);
 	bool	containsSpecialChar(const std::string& token);
 	bool	isValidErrorCode(const std::string& code);
-	void	getHosts();
 	void	getHostValues(const std::string& line, std::string& key, std::string &value) const ;
 	size_t	getActualBodySize(const std::string& token);
 
@@ -73,9 +69,11 @@ public:
 	NginxConfig(const std::string &file_path);
 
 	void	parse();
-	void	print() const;
 
 	~NginxConfig();
+
+public:
+	std::vector<Server> servers;
 };
 
 #endif // CLASS_NGINX_CONFIG_HPP

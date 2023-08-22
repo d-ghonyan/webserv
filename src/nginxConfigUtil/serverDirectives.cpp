@@ -32,12 +32,10 @@ void NginxConfig::listen(const std::vector<std::string>& tokens, size_t& server_
 		std::string	host("");
 		std::string	port("8080");
 
-		std::cout << "----> " << tokens[count] << "<-------\n";
 		validationOfListen(tokens[count], host, port);
 	
 		servers[server_index].pushListen(host, port);
 
-		// servers[server_index].pushListen(tokens[count]);
 		++count;
 	}
 
@@ -75,11 +73,8 @@ void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& serv
 	{
 		if (!isValidErrorCode(tokens[count]))
 			throw std::runtime_error("invalid error_code in error_page directive");
-		std::stringstream	ss(tokens[count]);
-		int err_code;
-		ss >> err_code;
 
-		servers[server_index].pushErrorPage(err_code, error_page);
+		servers[server_index].pushErrorPage(my_stoi(tokens[count]), error_page);
 		++count;
 	}
 
@@ -111,69 +106,62 @@ void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& se
 	i = count;
 }
 
-bool	NginxConfig::isInvalidValue(const std::string& token)
+bool NginxConfig::isInvalidValue(const std::string& token)
 {
 	std::string::const_iterator start	= token.begin();
 	std::string::const_iterator end		= token.end();
 	std::string::const_iterator it		= std::find_if(start, end, NonDigit());
-	
+
 	if (it == end)
 		return false;
+
 	if (it != (end - 1))
 		return true;
 	
 	char unit = std::tolower(token[token.size() - 1]);
 	
-	return unit != 'k' && unit != 'm' && unit != 'g' && unit != 't' && unit != 'p' && unit != 'e';
+	return unit != 'k' && unit != 'm' && unit != 'g';
 }
 
-bool	NginxConfig::isValidErrorCode(const std::string& code)
+bool NginxConfig::isValidErrorCode(const std::string& code)
 {
-	std::string::const_iterator	it = std::find_if(code.begin(), code.end(), NonDigit());
-
-	if (it != code.end())
-	{
-		std::cout << "----->" << *it << " <----------\n";
+	if (std::find_if(code.begin(), code.end(), NonDigit()) != code.end())
 		return false;
-	}
 
-	int	err_code = 0;
-
-	std::stringstream	ss(code);
-
-	ss >> err_code;
+	int	err_code = my_stoi(code);
 
 	return !(err_code < 300 || err_code >= 600);
 }
 
-bool	NginxConfig::containsSpecialChar(const std::string& token)
+bool NginxConfig::containsSpecialChar(const std::string& token)
 {
 	const std::string specChars("*?:;\"\'<>|&%#$@+-=");
 
-	for (std::string::const_iterator it = token.begin(); it !=  token.end(); ++it)
+	for (std::string::const_iterator it = token.begin(); it != token.end(); ++it)
 	{
 		std::string::const_iterator found = std::find(specChars.begin(), specChars.end(), *it);
 		if (found != specChars.end())
-			return (true);
+			return true;
 	}
-	return (false);
+	return false;
 }
 
 // k: Kilobytes	-> 10^3
 // m: Megabytes	-> 10^6
 // g: Gigabytes	-> 10^9
-// t: Terabytes	-> 10^12
-// p: Petabytes	-> 10^15
-// e: Exabytes	-> 10^18
-size_t	NginxConfig::getActualBodySize(const std::string& token)
+size_t NginxConfig::getActualBodySize(const std::string& token)
 {
-	size_t act_value = 1;
 	char unit = std::tolower(token[token.size() - 1]);
+	std::string val = token.substr(0, token.length() - 1);
+
+	int to_int = my_stoi(val);
+
+	if (to_int < 0)
+		throw std::runtime_error("invalid max_body_size value");
 
 	if (!std::isdigit(unit))
 	{
-		size_t	power = 1;
-		std::string val = token.substr(0, token.length() - 1);
+		size_t power = 1;
 
 		if (unit == 'k')
 			power = std::pow(10, 3);
@@ -181,26 +169,12 @@ size_t	NginxConfig::getActualBodySize(const std::string& token)
 			power = std::pow(10, 6);
 		else if (unit == 'g')
 			power = std::pow(10, 9);
-		else if (unit == 't')
-			power = std::pow(10, 12);
-		else if (unit == 'p')
-			power = std::pow(10, 15);
-		else if (unit == 'e')
-			power = std::pow(10, 18);
-		
-		std::stringstream	ss(val);
-		
-		ss >> act_value;
-		act_value *= power;
 
-		return act_value;
+		if ((unit == 'm' && to_int > std::pow(10, 5)) || (unit == 'g' && to_int > std::pow(10, 3)))
+			throw std::runtime_error("invalid max_body_size value");
+
+		return static_cast<size_t>(to_int) * power;
 	}
-	else
-	{
-		std::stringstream	ss(token);
-		
-		ss >> act_value;
-		
-		return (act_value);
-	}
+
+	return static_cast<size_t>(to_int);
 }
