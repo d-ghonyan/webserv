@@ -80,10 +80,22 @@ void NginxConfig::check_braces(const std::vector<std::string> tokens)
 void NginxConfig::init_locations(Location& location, const size_t& server_index)
 {
 	if (location.parent != "")
+	{
 		init_locations((servers[server_index].locations.find(location.parent))->second, server_index);
-
-	if (location.parent != "")
 		location = (servers[server_index].locations.find(location.parent))->second;
+	}
+	else
+	{
+		if (location._indexes.size() == 0)
+		{
+			location._indexes.push_back("index.html");
+		}
+		if (location._allowed_methods.size() == 0)
+		{
+			location._allowed_methods.push_back("GET");
+			location._allowed_methods.push_back("POST");
+		}
+	}
 }
 
 void NginxConfig::setDefaults()
@@ -108,8 +120,6 @@ void NginxConfig::setDefaults()
 			init_locations(it->second, i);
 		}
 	}
-
-	std::cout << "--------------------------------------------------\n";
 }
 
 void NginxConfig::parseLocations(std::vector<std::string> &tokens)

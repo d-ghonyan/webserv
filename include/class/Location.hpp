@@ -18,8 +18,6 @@ class Location
 {
 public:
 	int							_location_level;
-
-private:
 	std::string					_cgi;
 	std::string					_root;
 	std::string					_autoindex;
