@@ -14,10 +14,15 @@
 # define DEFAULT_SERVER_NAME ""
 # define DEFAULT_MAX_BODY_SIZE 1000
 
+# define DEFAULT_403_PAGE "error_pages/403.html"
+# define DEFAULT_404_PAGE "error_pages/404.html"
+
 class Server
 {
 private:
 	size_t								max_body_size;
+
+public:
 	std::vector<listen_t>				listen;
 	std::map<int, std::string>			error_pages;
 	std::vector<std::string> 			server_names;
@@ -45,7 +50,7 @@ public:
 	void printVectors(const std::vector<T>& vec);
 
 public:
-	std::map<std::string, Location> locations;
+	std::map<std::string, Location>		locations;
 };
 
 #endif // CLASS_SERVER_HPP

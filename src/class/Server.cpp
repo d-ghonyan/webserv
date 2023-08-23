@@ -2,8 +2,7 @@
 
 Server::Server(): max_body_size(DEFAULT_MAX_BODY_SIZE), listen(), error_pages(), server_names(), locations()
 {
-	// server_names.push_back(DEFAULT_SERVER_NAME);
-	// listen.push_back(listen_t(DEFAULT_HOST, DEFAULT_PORT));
+
 }
 
 void Server::pushListen(const std::string& host, const std::string& port)

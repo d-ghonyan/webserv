@@ -77,6 +77,41 @@ void NginxConfig::check_braces(const std::vector<std::string> tokens)
 		throw std::runtime_error("wrong braces");
 }
 
+void NginxConfig::init_locations(Location& location, const size_t& server_index)
+{
+	if (location.parent != "")
+		init_locations((servers[server_index].locations.find(location.parent))->second, server_index);
+
+	if (location.parent != "")
+		location = (servers[server_index].locations.find(location.parent))->second;
+}
+
+void NginxConfig::setDefaults()
+{
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		if (servers[i].error_pages.size() == 0)
+		{
+			servers[i].error_pages[403] = DEFAULT_403_PAGE;
+			servers[i].error_pages[404] = DEFAULT_404_PAGE;
+		}
+		if (servers[i].server_names.size() == 0)
+		{
+			servers[i].server_names.push_back("");
+		}
+		if (servers[i].listen.size() == 0)
+		{
+			servers[i].listen.push_back(listen_t(DEFAULT_HOST, DEFAULT_PORT));
+		}
+		for (LocationMap::reverse_iterator it = servers[i].locations.rbegin(); it != servers[i].locations.rend(); ++it)
+		{
+			init_locations(it->second, i);
+		}
+	}
+
+	std::cout << "--------------------------------------------------\n";
+}
+
 void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 {
 	size_t server_index = 0;
@@ -145,7 +180,7 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		}
 	}
 
-	// setDefaults();
+	setDefaults();
 
 	for (size_t i = 0; i < servers.size(); ++i)
 	{

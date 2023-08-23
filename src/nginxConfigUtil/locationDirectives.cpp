@@ -69,12 +69,12 @@ void NginxConfig::storeLocation(const std::vector<std::string>& tokens, std::vec
 		++i;
 		current_location.push_back(tokens[i]);
 		
-		Location temp(location_level);
+		Location temp;
 
 		LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
 
 		if (it != servers[server_index].locations.end() && it->second == temp)
-			throw std::runtime_error("Dublicate location ay txa e o");
+			throw std::runtime_error("Duplicate location ay txa e o");
 
 		servers[server_index].locations[tokens[i]] = temp;
 
@@ -85,20 +85,17 @@ void NginxConfig::storeLocation(const std::vector<std::string>& tokens, std::vec
 	{
 		++i;
 		if (IS_OUTSIDE_LOCATION(tokens[i], current_location.back()))
-		{
 			throw std::runtime_error(tokens[i] + " is outside location " + current_location.back());
-		}
 
 		LocationMap::iterator it = servers[server_index].locations.find(tokens[i]);
-		
-		Location temp(servers[server_index].locations[current_location.back()]);
-		
-		temp.setLevel(location_level);
+
+		Location temp(location_level, current_location.back());
 
 		if (it != servers[server_index].locations.end() && it->second == temp)
-			throw std::runtime_error("Dublicate location ay txa e o");
+			throw std::runtime_error("Duplicate location ay txa e o");
 
 		servers[server_index].locations.insert(std::make_pair(tokens[i], temp));
+
 		current_location.push_back(tokens[i]);
 		++i;
 		++location_level;

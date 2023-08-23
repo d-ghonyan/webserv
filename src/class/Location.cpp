@@ -2,30 +2,27 @@
 
 Location::Location():
 	_location_level(1), _cgi(DEFAULT_CGI), _root(DEFAULT_ROOT), _autoindex(DEFAULT_AUTOINDEX), _httpRedir(HTTP_REDIRECTION),
-	_upload_dir(UPLOAD_DIRECTORY), _indexes(), _allowed_methods()
+	_upload_dir(UPLOAD_DIRECTORY), _indexes(), _allowed_methods(), parent()
 {
-	// _allowed_methods.push_back("POST");
-	// _allowed_methods.push_back("DELETE");
+
 }
 
-Location::Location(int loc_l):
-	_location_level(loc_l), _cgi(DEFAULT_CGI), _root(DEFAULT_ROOT), _autoindex(DEFAULT_AUTOINDEX), _httpRedir(HTTP_REDIRECTION),
-	_upload_dir(UPLOAD_DIRECTORY), _indexes(), _allowed_methods()
+Location::Location(int loc_l, const std::string& prnt):
+	_location_level(loc_l), parent(prnt)
 {
-	// _allowed_methods.push_back("POST");
-	// _allowed_methods.push_back("DELETE");
+
 }
 
-Location::Location(const Location& other)
-{
-	_cgi = other._cgi;
-	_root = other._root;
-	_indexes = other._indexes;
-	_autoindex = other._autoindex;
-	_httpRedir = other._httpRedir;
-	_upload_dir = other._upload_dir;
-	_allowed_methods = other._allowed_methods;
-}
+//Location::Location(const Location& other)
+//{
+//	_cgi = other._cgi;
+//	_root = other._root;
+//	_indexes = other._indexes;
+//	_autoindex = other._autoindex;
+//	_httpRedir = other._httpRedir;
+//	_upload_dir = other._upload_dir;
+//	_allowed_methods = other._allowed_methods;
+//}
 
 void Location::pushIndexes(const std::string& index) { _indexes.push_back(index); }
 
@@ -71,6 +68,7 @@ const std::vector<std::string>& Location::getArrayOf(const std::string& directiv
 
 void Location::printEverything(const std::string& indent) const
 {
+	std::cout << indent << "Parent: " << parent << "\n";
 	std::cout << indent << "Location_level: " << _location_level << "\n";
 	std::cout << indent << "Cgi: " << _cgi << "\n";
 	std::cout << indent << "Root: " << _root << "\n";
@@ -99,7 +97,27 @@ bool Location::operator<(const Location& other) const
 
 bool Location::operator==(const Location& rhs) const
 {
-	return _location_level == rhs._location_level;
+	return _location_level == rhs._location_level && parent == rhs.parent;
+}
+
+Location& Location::operator=(const Location& rhs)
+{
+	if (_autoindex.size() == 0)
+		_autoindex = rhs._autoindex;
+	if (_root.size() == 0)
+		_root = rhs._root;
+	if (_httpRedir.size() == 0)
+		_httpRedir = rhs._httpRedir;
+	if (_cgi.size() == 0)
+		_cgi = rhs._cgi;
+	if (_upload_dir.size() == 0)
+		_upload_dir = rhs._upload_dir;
+	if (_indexes.size() == 0)
+		_indexes = rhs._indexes;
+	if (_allowed_methods.size() == 0)
+		_allowed_methods = rhs._allowed_methods;
+
+	return *this;
 }
 
 Location::~Location()

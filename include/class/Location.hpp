@@ -16,8 +16,10 @@
 
 class Location
 {
+public:
+	int							_location_level;
+
 private:
-	int 						_location_level;
 	std::string					_cgi;
 	std::string					_root;
 	std::string					_autoindex;
@@ -45,13 +47,16 @@ public:
 
 public:
 	Location();
-	Location(int loc_l);
-	Location(const Location& other);
+	Location(int loc_l, const std::string& prnt);
 
 	bool operator<(const Location& other) const ;
 	bool operator==(const Location& rhs) const;
 
+	Location& operator=(const Location& rhs);
 	~Location();
+
+public:
+	std::string					parent;
 };
 
 typedef std::map<std::string, Location> LocationMap;
