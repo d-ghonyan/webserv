@@ -60,9 +60,7 @@ void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& serv
 
 	error_page = tokens[count - 1];
 	if (containsSpecialChar(error_page))
-	{
 		throw std::runtime_error("invalid path in error_page directive");
-	}
 
 	if (count == i || count == i + 1 || tokens[count] != ";")
 		throw std::runtime_error("invalid error_page directive");
@@ -71,10 +69,12 @@ void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& serv
 
 	while (tokens[count] != error_page)
 	{
-		if (!isValidErrorCode(tokens[count]))
+		int error_code = my_stoi(tokens[count]);
+
+		if (error_code < 300 || error_code >= 600)
 			throw std::runtime_error("invalid error_code in error_page directive");
 
-		servers[server_index].pushErrorPage(my_stoi(tokens[count]), error_page);
+		servers[server_index].pushErrorPage(error_code, error_page);
 		++count;
 	}
 
@@ -93,9 +93,6 @@ void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& se
 
 	while (tokens[count] !=  ";" && tokens[count] != "{" && tokens[count] != "}")
 	{
-		if (isInvalidValue(tokens[count]))
-			throw std::runtime_error("Invalid value of client_max_body_size directive");
-
 		servers[server_index].setMaxBodySize(getActualBodySize(tokens[count]));
 		++count;
 	}
@@ -104,33 +101,6 @@ void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& se
 		throw std::runtime_error("invalid client_max_body_size directive");
 
 	i = count;
-}
-
-bool NginxConfig::isInvalidValue(const std::string& token)
-{
-	std::string::const_iterator start	= token.begin();
-	std::string::const_iterator end		= token.end();
-	std::string::const_iterator it		= std::find_if(start, end, NonDigit());
-
-	if (it == end)
-		return false;
-
-	if (it != (end - 1))
-		return true;
-	
-	char unit = std::tolower(token[token.size() - 1]);
-	
-	return unit != 'k' && unit != 'm' && unit != 'g';
-}
-
-bool NginxConfig::isValidErrorCode(const std::string& code)
-{
-	if (std::find_if(code.begin(), code.end(), NonDigit()) != code.end())
-		return false;
-
-	int	err_code = my_stoi(code);
-
-	return !(err_code < 300 || err_code >= 600);
 }
 
 bool NginxConfig::containsSpecialChar(const std::string& token)
@@ -169,6 +139,8 @@ size_t NginxConfig::getActualBodySize(const std::string& token)
 			power = std::pow(10, 6);
 		else if (unit == 'g')
 			power = std::pow(10, 9);
+		else
+			throw std::runtime_error("invalid max_body_size value");
 
 		if ((unit == 'm' && to_int > std::pow(10, 5)) || (unit == 'g' && to_int > std::pow(10, 3)))
 			throw std::runtime_error("invalid max_body_size value");

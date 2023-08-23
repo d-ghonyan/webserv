@@ -145,6 +145,8 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 		}
 	}
 
+	// setDefaults();
+
 	for (size_t i = 0; i < servers.size(); ++i)
 	{
 		servers[i].print_everything();

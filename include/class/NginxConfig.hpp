@@ -63,6 +63,7 @@ private:
 	void	setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
 	void	setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
 	void	storeLocation(const std::vector<std::string>& tokens, std::vector<std::string>& current_location, size_t& location_level, const size_t& server_index, size_t& i);
+	void	setDefaults();
 
 public:
 	NginxConfig();

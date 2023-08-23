@@ -23,8 +23,8 @@
 #					Example: listen localhost:8080;
 #					Example: listen 127.0.0.1;
 #
-#	root		-	Can have only one value, which must started with 'www/' path
-#					and ended with or without '/' symbol.
+#	root		-	Can have only one value,
+#					and end with or without '/' symbol.
 #					Example: root www/html;
 #					Example: root www/html/;
 #
