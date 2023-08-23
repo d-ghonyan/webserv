@@ -16,7 +16,7 @@
 
 class Location
 {
-public:
+private:
 	int							_location_level;
 	std::string					_cgi;
 	std::string					_root;
@@ -25,6 +25,8 @@ public:
 	std::string					_upload_dir;
 	std::vector<std::string>	_indexes;
 	std::vector<std::string>	_allowed_methods;
+
+	std::string					_parent;
 
 public:
 	void setCgi(const std::string&);
@@ -37,8 +39,9 @@ public:
 	void setHttpRedir(const std::string&);
 	void setUploadDir(const std::string&);
 
-	const std::string& getValueOf(const std::string& directiveName);
-	const std::vector<std::string>& getArrayOf(const std::string& directiveName);
+	const std::string& getParent() const ;
+	const std::string& getValueOf(const std::string& directiveName) const ;
+	const std::vector<std::string>& getArrayOf(const std::string& directiveName) const ;
 
 	void printEverything(const std::string& indent) const ;
 	void printVectors(const std::vector<std::string>& vec, const std::string& indent) const ;
@@ -49,12 +52,10 @@ public:
 
 	bool operator<(const Location& other) const ;
 	bool operator==(const Location& rhs) const;
-
 	Location& operator=(const Location& rhs);
+
 	~Location();
 
-public:
-	std::string					parent;
 };
 
 typedef std::map<std::string, Location> LocationMap;

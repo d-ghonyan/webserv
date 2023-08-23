@@ -21,8 +21,6 @@ class Server
 {
 private:
 	size_t								max_body_size;
-
-public:
 	std::vector<listen_t>				listen;
 	std::map<int, std::string>			error_pages;
 	std::vector<std::string> 			server_names;

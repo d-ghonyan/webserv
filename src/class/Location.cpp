@@ -2,27 +2,16 @@
 
 Location::Location():
 	_location_level(1), _cgi(DEFAULT_CGI), _root(DEFAULT_ROOT), _autoindex(DEFAULT_AUTOINDEX), _httpRedir(HTTP_REDIRECTION),
-	_upload_dir(UPLOAD_DIRECTORY), _indexes(), _allowed_methods(), parent()
+	_upload_dir(UPLOAD_DIRECTORY), _indexes(), _allowed_methods(), _parent()
 {
 
 }
 
 Location::Location(int loc_l, const std::string& prnt):
-	_location_level(loc_l), parent(prnt)
+	_location_level(loc_l), _parent(prnt)
 {
 
 }
-
-//Location::Location(const Location& other)
-//{
-//	_cgi = other._cgi;
-//	_root = other._root;
-//	_indexes = other._indexes;
-//	_autoindex = other._autoindex;
-//	_httpRedir = other._httpRedir;
-//	_upload_dir = other._upload_dir;
-//	_allowed_methods = other._allowed_methods;
-//}
 
 void Location::pushIndexes(const std::string& index) { _indexes.push_back(index); }
 
@@ -40,8 +29,10 @@ void Location::setUploadDir(const std::string& dir) { _upload_dir = dir; }
 
 void Location::setLevel(const int& level) { _location_level = level; }
 
+const std::string& Location::getParent() const { return _parent; }
+
 // return values of directives or root by default
-const std::string& Location::getValueOf(const std::string& directiveName)
+const std::string& Location::getValueOf(const std::string& directiveName) const
 {
 	if (directiveName == "autoindex")
 		return _autoindex;
@@ -57,7 +48,7 @@ const std::string& Location::getValueOf(const std::string& directiveName)
 }
 
 // return the array indexes (default) or allowed methods
-const std::vector<std::string>& Location::getArrayOf(const std::string& directiveName)
+const std::vector<std::string>& Location::getArrayOf(const std::string& directiveName) const
 {
 	if (directiveName == "index")
 		return _indexes;
@@ -68,7 +59,7 @@ const std::vector<std::string>& Location::getArrayOf(const std::string& directiv
 
 void Location::printEverything(const std::string& indent) const
 {
-	std::cout << indent << "Parent: " << parent << "\n";
+	std::cout << indent << "Parent: " << _parent << "\n";
 	std::cout << indent << "Location_level: " << _location_level << "\n";
 	std::cout << indent << "Cgi: " << _cgi << "\n";
 	std::cout << indent << "Root: " << _root << "\n";
@@ -97,7 +88,7 @@ bool Location::operator<(const Location& other) const
 
 bool Location::operator==(const Location& rhs) const
 {
-	return _location_level == rhs._location_level && parent == rhs.parent;
+	return _location_level == rhs._location_level && _parent == rhs._parent;
 }
 
 Location& Location::operator=(const Location& rhs)
@@ -120,7 +111,4 @@ Location& Location::operator=(const Location& rhs)
 	return *this;
 }
 
-Location::~Location()
-{
-
-}
+Location::~Location() { }

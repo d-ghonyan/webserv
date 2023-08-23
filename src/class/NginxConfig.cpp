@@ -79,21 +79,21 @@ void NginxConfig::check_braces(const std::vector<std::string> tokens)
 
 void NginxConfig::init_locations(Location& location, const size_t& server_index)
 {
-	if (location.parent != "")
+	if (location.getParent() != "")
 	{
-		init_locations((servers[server_index].locations.find(location.parent))->second, server_index);
-		location = (servers[server_index].locations.find(location.parent))->second;
+		init_locations((servers[server_index].locations.find(location.getParent()))->second, server_index);
+		location = (servers[server_index].locations.find(location.getParent()))->second;
 	}
 	else
 	{
-		if (location._indexes.size() == 0)
+		if (location.getArrayOf("index").size() == 0)
 		{
-			location._indexes.push_back("index.html");
+			location.pushIndexes("index.html");
 		}
-		if (location._allowed_methods.size() == 0)
+		if (location.getArrayOf("allow_methods").size() == 0)
 		{
-			location._allowed_methods.push_back("GET");
-			location._allowed_methods.push_back("POST");
+			location.pushMethods("GET");
+			location.pushMethods("POST");
 		}
 	}
 }
@@ -102,18 +102,18 @@ void NginxConfig::setDefaults()
 {
 	for (size_t i = 0; i < servers.size(); ++i)
 	{
-		if (servers[i].error_pages.size() == 0)
+		if (servers[i].getErrorPages().size() == 0)
 		{
-			servers[i].error_pages[403] = DEFAULT_403_PAGE;
-			servers[i].error_pages[404] = DEFAULT_404_PAGE;
+			servers[i].pushErrorPage(403, DEFAULT_403_PAGE);
+			servers[i].pushErrorPage(404, DEFAULT_404_PAGE);
 		}
-		if (servers[i].server_names.size() == 0)
+		if (servers[i].getServerNames().size() == 0)
 		{
-			servers[i].server_names.push_back("");
+			servers[i].pushServerName("");
 		}
-		if (servers[i].listen.size() == 0)
+		if (servers[i].getListens().size() == 0)
 		{
-			servers[i].listen.push_back(listen_t(DEFAULT_HOST, DEFAULT_PORT));
+			servers[i].pushListen(DEFAULT_HOST, DEFAULT_PORT);
 		}
 		for (LocationMap::reverse_iterator it = servers[i].locations.rbegin(); it != servers[i].locations.rend(); ++it)
 		{

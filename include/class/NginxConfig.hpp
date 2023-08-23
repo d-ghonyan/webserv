@@ -41,9 +41,7 @@ private:
 	void	generateTokens(const std::string &file);
 	void	parseLocations(std::vector<std::string> &tokens);
 	void	check_braces(const std::vector<std::string> tokens);
-	bool	isInvalidValue(const std::string&);
 	bool	containsSpecialChar(const std::string& token);
-	bool	isValidErrorCode(const std::string& code);
 	void	getHostValues(const std::string& line, std::string& key, std::string &value) const ;
 	size_t	getActualBodySize(const std::string& token);
 
