@@ -1,12 +1,10 @@
-#include "NginxConfig.hpp"
+#include "ConfigParser.hpp"
 
-NginxConfig::NginxConfig() : path(DEFAULT_FILE_PATH), servers(std::vector<Server>()) {}
+ConfigParser::ConfigParser(const std::string &file_path) : servers(std::vector<Server>()) { parse(file_path); }
 
-NginxConfig::NginxConfig(const std::string &file_path) : path(file_path), servers(std::vector<Server>()) {}
-
-void NginxConfig::parse()
+void ConfigParser::parse(const std::string &file_path)
 {
-	std::ifstream conf(path.c_str());
+	std::ifstream conf(file_path.c_str());
 	std::stringstream sstream;
 
 	if (conf.fail())
@@ -21,7 +19,7 @@ void NginxConfig::parse()
 	generateTokens(file);
 }
 
-void NginxConfig::generateTokens(const std::string &file)
+void ConfigParser::generateTokens(const std::string &file)
 {
 	std::vector<std::string> tokens;
 
@@ -58,7 +56,7 @@ void NginxConfig::generateTokens(const std::string &file)
 	std::cout << "\n";
 }
 
-void NginxConfig::check_braces(const std::vector<std::string> tokens)
+void ConfigParser::check_braces(const std::vector<std::string> tokens)
 {
 	std::stack<int> br;
 
@@ -77,7 +75,7 @@ void NginxConfig::check_braces(const std::vector<std::string> tokens)
 		throw std::runtime_error("wrong braces");
 }
 
-void NginxConfig::init_locations(Location& location, const size_t& server_index)
+void ConfigParser::init_locations(Location& location, const size_t& server_index)
 {
 	if (location.getParent() != "")
 	{
@@ -98,7 +96,7 @@ void NginxConfig::init_locations(Location& location, const size_t& server_index)
 	}
 }
 
-void NginxConfig::setDefaults()
+void ConfigParser::setDefaults()
 {
 	for (size_t i = 0; i < servers.size(); ++i)
 	{
@@ -122,7 +120,7 @@ void NginxConfig::setDefaults()
 	}
 }
 
-void NginxConfig::parseLocations(std::vector<std::string> &tokens)
+void ConfigParser::parseLocations(std::vector<std::string> &tokens)
 {
 	size_t server_index = 0;
 	size_t location_level = 0;
@@ -191,12 +189,6 @@ void NginxConfig::parseLocations(std::vector<std::string> &tokens)
 	}
 
 	setDefaults();
-
-	for (size_t i = 0; i < servers.size(); ++i)
-	{
-		servers[i].print_everything();
-		std::cout << "===================\n";
-	}
 }
 
-NginxConfig::~NginxConfig() { }
+ConfigParser::~ConfigParser() { }

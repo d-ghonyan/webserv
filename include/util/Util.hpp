@@ -27,4 +27,6 @@ struct NonDigit
 	bool operator()(char c);
 };
 
+// struct 
+
 #endif // UTIL_HPP

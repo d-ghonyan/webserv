@@ -13,9 +13,17 @@ Location::Location(int loc_l, const std::string& prnt):
 
 }
 
-void Location::pushIndexes(const std::string& index) { _indexes.push_back(index); }
+void Location::pushIndexes(const std::string& index)
+{
+	if (std::find(_indexes.begin(), _indexes.end(), index) == _indexes.end())
+		_indexes.push_back(index);
+}
 
-void Location::pushMethods(const std::string& method) { _allowed_methods.push_back(method); }
+void Location::pushMethods(const std::string& method)
+{
+	if (std::find(_allowed_methods.begin(), _allowed_methods.end(), method) == _allowed_methods.end())
+		_allowed_methods.push_back(method);
+}
 
 void Location::setCgi(const std::string& cgi) { _cgi = cgi; }
 

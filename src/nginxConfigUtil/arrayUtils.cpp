@@ -1,6 +1,6 @@
-#include "NginxConfig.hpp"
+#include "ConfigParser.hpp"
 
-char const * const NginxConfig::single_value_directives_location[] = {
+char const * const ConfigParser::single_value_directives_location[] = {
 	"autoindex",
 	"root",
 	"return",
@@ -9,20 +9,20 @@ char const * const NginxConfig::single_value_directives_location[] = {
 	NULL,
 };
 
-char const * const NginxConfig::array_value_directives_location[] = {
+char const * const ConfigParser::array_value_directives_location[] = {
 	"index",
 	"allow_methods",
 	NULL,
 };
 
-char const * const NginxConfig::allowed_methods[] = {
+char const * const ConfigParser::allowed_methods[] = {
 	"GET",
 	"POST",
 	"DELETE",
 	NULL,
 };
 
-bool NginxConfig::contains(char const * const allowed[], const std::string &token)
+bool ConfigParser::contains(char const * const allowed[], const std::string &token)
 {
 	for (size_t i = 0; allowed[i]; ++i)
 	{

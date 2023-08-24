@@ -1,6 +1,6 @@
-#include "NginxConfig.hpp"
+#include "ConfigParser.hpp"
 
-void NginxConfig::setter(Location& location, const std::string& name, const std::string& val)
+void ConfigParser::setter(Location& location, const std::string& name, const std::string& val)
 {
 	if (name == "autoindex")
 	{
@@ -26,7 +26,7 @@ void NginxConfig::setter(Location& location, const std::string& name, const std:
 	}
 }
 
-void NginxConfig::setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i)
+void ConfigParser::setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i)
 {
 	std::string directive_name = tokens[i];
 
@@ -44,7 +44,7 @@ void NginxConfig::setProperties(Location& current_location, const std::vector<st
 	i = count;
 }
 
-void NginxConfig::setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i)
+void ConfigParser::setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i)
 {
 	std::string directive_name = tokens[i];
 
@@ -62,7 +62,7 @@ void NginxConfig::setVectors(Location& current_location, const std::vector<std::
 	i = count;
 }
 
-void NginxConfig::storeLocation(const std::vector<std::string>& tokens, std::vector<std::string>& current_location, size_t& location_level, const size_t& server_index, size_t& i)
+void ConfigParser::storeLocation(const std::vector<std::string>& tokens, std::vector<std::string>& current_location, size_t& location_level, const size_t& server_index, size_t& i)
 {
 	if (location_level == 1)
 	{

@@ -55,7 +55,6 @@ public:
 	Location& operator=(const Location& rhs);
 
 	~Location();
-
 };
 
 typedef std::map<std::string, Location> LocationMap;

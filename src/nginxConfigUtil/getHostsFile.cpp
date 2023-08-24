@@ -1,6 +1,6 @@
-#include "NginxConfig.hpp"
+#include "ConfigParser.hpp"
 
-void NginxConfig::getHostValues(const std::string& line, std::string& key, std::string &value) const
+void ConfigParser::getHostValues(const std::string& line, std::string& key, std::string &value) const
 {
 	size_t i = 0;
 
@@ -20,7 +20,7 @@ void NginxConfig::getHostValues(const std::string& line, std::string& key, std::
 		value.push_back(line[i++]);
 }
 
-void NginxConfig::getHosts()
+void ConfigParser::getHosts()
 {
 	std::ifstream file("/etc/hosts");
 

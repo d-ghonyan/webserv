@@ -17,7 +17,11 @@ void Server::pushListen(const std::string& host, const std::string& port)
 
 void Server::setMaxBodySize(size_t	l) { max_body_size = l; }
 
-void Server::pushServerName(const std::string& server_name) { server_names.push_back(server_name); }
+void Server::pushServerName(const std::string& server_name)
+{
+	if (std::find(server_names.begin(), server_names.end(), server_name) == server_names.end())
+		server_names.push_back(server_name);
+}
 
 void Server::pushErrorPage(int error_code, const std::string& error_page) { error_pages[error_code] = error_page; }
 
@@ -42,7 +46,7 @@ void Server::print_everything()
 
 	std::cout << "\n";
 	std::cout << "Max body size: " << max_body_size << "\n";
-	std::cout << "Locations: \n------\n";
+	std::cout << "Locations: \n--------\n";
 
 	for (LocationMap::iterator it = locations.begin(); it != locations.end(); ++it)
 	{
@@ -50,6 +54,16 @@ void Server::print_everything()
 		std::cout << "++++++++++++++\n\n";
 	}
 	std::cout << "--------\n";
+}
+
+bool Server::operator==(const std::string& serverName)
+{
+	return std::find(server_names.begin(), server_names.end(), serverName) != server_names.end();
+}
+
+bool Server::operator==(const listen_t& lst)
+{
+	return std::find(listen.begin(), listen.end(), lst) != listen.end();
 }
 
 template <typename T>

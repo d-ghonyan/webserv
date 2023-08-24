@@ -1,6 +1,6 @@
-#include "NginxConfig.hpp"
+#include "ConfigParser.hpp"
 
-void NginxConfig::serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
+void ConfigParser::serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
 {
 	if (location_level != 1)
 		throw std::runtime_error(tokens[i] + " is not allowed here");
@@ -19,7 +19,7 @@ void NginxConfig::serverName(const std::vector<std::string>& tokens, size_t& ser
 	i = count;
 }
 
-void NginxConfig::listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
+void ConfigParser::listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
 {
 	if (location_level != 1)
 		throw std::runtime_error(tokens[i] + " is not allowed here");
@@ -45,7 +45,7 @@ void NginxConfig::listen(const std::vector<std::string>& tokens, size_t& server_
 	i = count;
 }
 
-void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
+void ConfigParser::errorPage(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
 {
 	if (location_level != 1)
 		throw std::runtime_error(tokens[i] + " is not allowed here");
@@ -81,7 +81,7 @@ void NginxConfig::errorPage(const std::vector<std::string>& tokens, size_t& serv
 	i = count + 1;
 }
 
-void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
+void ConfigParser::maxBodySize(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
 {
 	if (location_level != 1)
 		throw std::runtime_error(tokens[i] + " is not allowed here");
@@ -103,7 +103,7 @@ void NginxConfig::maxBodySize(const std::vector<std::string>& tokens, size_t& se
 	i = count;
 }
 
-bool NginxConfig::containsSpecialChar(const std::string& token)
+bool ConfigParser::containsSpecialChar(const std::string& token)
 {
 	const std::string specChars("*?:;\"\'<>|&%#$@+-=");
 
@@ -119,7 +119,7 @@ bool NginxConfig::containsSpecialChar(const std::string& token)
 // k: Kilobytes	-> 10^3
 // m: Megabytes	-> 10^6
 // g: Gigabytes	-> 10^9
-size_t NginxConfig::getActualBodySize(const std::string& token)
+size_t ConfigParser::getActualBodySize(const std::string& token)
 {
 	char unit = std::tolower(token[token.size() - 1]);
 	std::string val = token.substr(0, token.length() - 1);

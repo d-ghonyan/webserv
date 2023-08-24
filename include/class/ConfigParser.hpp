@@ -21,13 +21,19 @@
 
 # define IS_OUTSIDE_LOCATION(token, prevToken) (strncmp(prevToken.c_str(), token.c_str(), prevToken.length()) != 0)
 
-typedef	std::map<std::string, std::string> Hosts;
+class ConfigParser
 
-class NginxConfig
 {
-private:
+public:
+	typedef	std::map<std::string, std::string> Hosts;
+
+	typedef std::vector<Server>::iterator	iterator;
+	typedef LocationMap::iterator			location_iterator;
+	typedef	Hosts::iterator					host_iterator;
+
+protected:
 	Hosts hosts;
-	const std::string path;
+	std::vector<Server> servers;
 
 private:
 	static char const * const allowed_methods[];
@@ -65,15 +71,11 @@ private:
 	void	setDefaults();
 
 public:
-	NginxConfig();
-	NginxConfig(const std::string &file_path);
+	ConfigParser(const std::string &file_path);
 
-	void	parse();
+	void	parse(const std::string& file_path);
 
-	~NginxConfig();
-
-public:
-	std::vector<Server> servers;
+	~ConfigParser();
 };
 
 #endif // CLASS_NGINX_CONFIG_HPP

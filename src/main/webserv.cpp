@@ -7,12 +7,12 @@ int main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 
-	NginxConfig	config = ( argc > 1 ? NginxConfig(argv[1]) : NginxConfig() );
+	Config conf = ( argc > 1 ? Config(argv[1]) : Config() );
 
 	try
 	{
+		conf.getLocationData("127.0.0.1", "8080", "server2", "/a").printEverything("");
 		// loop();
-		config.parse();
 	}
 	catch(const std::exception& e)
 	{

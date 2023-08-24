@@ -4,6 +4,6 @@
 # include <list>
 # include <iostream>
 
-# include "NginxConfig.hpp"
+# include "Config.hpp"
 
 #endif // MAIN_WEBSERV_HPP

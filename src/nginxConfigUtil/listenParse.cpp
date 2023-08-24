@@ -1,6 +1,6 @@
-#include "NginxConfig.hpp"
+#include "ConfigParser.hpp"
 
-void NginxConfig::validationOfListen(std::string token, std::string& host, std::string& port) const
+void ConfigParser::validationOfListen(std::string token, std::string& host, std::string& port) const
 {
 	std::string	_host;
 	std::string	_port;
@@ -39,7 +39,7 @@ void NginxConfig::validationOfListen(std::string token, std::string& host, std::
 	}
 }
 
-int NginxConfig::isValidIP(const std::string& host) const
+int ConfigParser::isValidIP(const std::string& host) const
 {
 	int	count = 0;
 
@@ -59,7 +59,7 @@ int NginxConfig::isValidIP(const std::string& host) const
 	return count;
 }
 
-std::string NginxConfig::storeIP(const std::string& host, int count) const
+std::string ConfigParser::storeIP(const std::string& host, int count) const
 {
 	std::string ret;
 	std::vector<std::string> ip_vector = splitIP(host, count, '.');
@@ -75,7 +75,7 @@ std::string NginxConfig::storeIP(const std::string& host, int count) const
 	return ret;
 }
 
-bool NginxConfig::isValidPort(const std::string& _port) const
+bool ConfigParser::isValidPort(const std::string& _port) const
 {
 	if (std::find_if(_port.begin(), _port.end(), NonDigit()) != _port.end())
 		return false;
