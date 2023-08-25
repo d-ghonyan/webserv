@@ -10,6 +10,7 @@ void init_sets(const int& sockfd, fd_set& master, fd_set& wrmaster)
 
 void loop()
 {
+	int yes = 1;
 	int fd = getSocketListener(NULL, "8080");
 
 	fd_set readfd;
@@ -49,7 +50,10 @@ void loop()
 			{
 				if (i == fd)
 				{
+					std::cout << "i == fd\n";
 					int new_fd = accept(fd, (struct sockaddr *)&accepted, &size);
+
+					setsockopt(new_fd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof yes);
 
 					FD_SET(new_fd, &master);
 
@@ -58,12 +62,14 @@ void loop()
 				}
 				else
 				{
+					std::cout << "i != fd\n";
 					char buf[MAX_BUF + 1];
 
 					ssize_t rec = recv(i, buf, MAX_BUF, 0);
 
 					if (rec <= 0)
 					{
+						std::cout << "recv <=0\n";
 						close(i);
 						FD_CLR(i, &master);
 						FD_CLR(i, &wrmaster);
@@ -83,10 +89,7 @@ void loop()
 			{
 				if(send(i, listDirectiory(writefds[i].c_str()).c_str(), listDirectiory(writefds[i].c_str()).size(), 0) < 0)
 					perror("send");
-				close(i);
-				FD_CLR(i, &master);
 				FD_CLR(i, &wrmaster);
-				writefds.erase(i);
 			}
 
 		}

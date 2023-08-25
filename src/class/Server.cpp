@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server(): max_body_size(DEFAULT_MAX_BODY_SIZE), listen(), error_pages(), server_names(), locations()
+Server::Server(): max_body_size(-1), listen(), error_pages(), server_names(), locations()
 {
 
 }
@@ -25,7 +25,7 @@ void Server::pushServerName(const std::string& server_name)
 
 void Server::pushErrorPage(int error_code, const std::string& error_page) { error_pages[error_code] = error_page; }
 
-size_t Server::getMaxBodySize() const { return max_body_size; }
+ssize_t Server::getMaxBodySize() const { return max_body_size; }
 
 const std::vector<listen_t>& Server::getListens() const { return listen; }
 

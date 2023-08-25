@@ -42,5 +42,5 @@ std::string listDirectiory(const char recvbuf[MAX_BUF + 1])
 
 	ret += "</ul>";
 
-	return "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(ret.size()) + "\n\n" + ret;
+	return "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(ret.size()) + "\r\n\r\n" + ret;
 }
