@@ -1,17 +1,72 @@
 #include "tcpServer.hpp"
 
-std::string openFile(const char recvbuf[MAX_BUF + 1], const std::string& root)
+// <meta http-equiv="Refresh" content="0; url='https://www.w3docs.com'" />
+
+bool isDir(const std::string& name)
+{
+	DIR *dir = opendir(name.c_str());
+
+	if (!dir)
+		return false;
+	
+	closedir(dir);
+
+	return true;
+}
+
+std::string openFile(const char recvbuf[MAX_BUF + 1], const Location& loc)
 {
 	std::stringstream str;
 
-	std::ifstream buf((root + getUrl(recvbuf) + "/index.html").c_str());
+	std::vector<std::string> indexes = loc.getArrayOf("index");
+
+	std::string url = getUrl(recvbuf);
+	std::string root = loc.getValueOf("root");
+
+	std::string data;
+
+	if (isDir(root + url))
+	{
+		std::cout << "dir\n";
+		for (size_t i = 0; i < indexes.size(); ++i)
+		{
+			std::ifstream buf((root + url + "/" + indexes[i]).c_str());
+
+			if (!buf.fail())
+			{
+				str << buf.rdbuf();
+
+				data = str.str();
+
+				return "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
+			}
+		}
+		std::cout << "forbidden\n";
+
+		data = "<center>403 Forbidden</center>";
+
+		return "HTTP/1.1 403 Forbidden\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
+	}
+
+	if (errno == EACCES)
+	{
+		data ="<center>403 Forbidden</center>";
+
+		return "HTTP/1.1 403 Forbidden\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
+	}
+
+	std::ifstream buf((root + url).c_str());
 
 	if (buf.fail())
-		perror("failed to open file");
+	{
+		data = errno == EACCES ? "<center>403 Forbidden</center>" : "<center>404 Not found</center>";
+
+		return "HTTP/1.1 404 Not found\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
+	}
 
 	str << buf.rdbuf();
 
-	std::string data(str.str());
+	data = str.str();
 
 	return "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(data.size()) + "\n\n" + data;
 }
@@ -42,5 +97,7 @@ std::string listDirectiory(const char recvbuf[MAX_BUF + 1])
 
 	ret += "</ul>";
 
-	return "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(ret.size()) + "\r\n\r\n" + ret;
+	closedir(dir);
+	
+	return "HTTP/1.1 200 OK\nContent-Type:text/html\nContent Length:" + my_to_string(ret.size()) + "\n\n" + ret;
 }

@@ -1,5 +1,22 @@
 #include "ConfigParser.hpp"
 
+void ConfigParser::root(const std::vector<std::string>& tokens, size_t& server_index, size_t& i)
+{
+	size_t count = ++i;
+
+	while (tokens[count] !=  ";" && tokens[count] != "{" && tokens[count] != "}")
+	{
+		servers[server_index].setRoot(tokens[count]);
+
+		++count;
+	}
+
+	if (count == i || count - 1 != i || tokens[count] != ";")
+		throw std::runtime_error("invalid root directive");
+
+	i = count;
+}
+
 void ConfigParser::serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i)
 {
 	if (location_level != 1)
@@ -25,7 +42,6 @@ void ConfigParser::listen(const std::vector<std::string>& tokens, size_t& server
 		throw std::runtime_error(tokens[i] + " is not allowed here");
 
 	size_t count = ++i;
-
 
 	while (tokens[count] !=  ";" && tokens[count] != "{" && tokens[count] != "}")
 	{

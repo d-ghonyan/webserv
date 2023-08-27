@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server(): max_body_size(-1), listen(), error_pages(), server_names(), locations()
+Server::Server(): max_body_size(-1), root(), listen(), error_pages(), server_names(), locations()
 {
 
 }
@@ -16,6 +16,16 @@ void Server::pushListen(const std::string& host, const std::string& port)
 }
 
 void Server::setMaxBodySize(size_t	l) { max_body_size = l; }
+
+void Server::setRoot(const std::string& rt)
+{
+	root = rt[0] == '/' ? rt : DEFAULT_ROOT + rt;
+}
+
+const std::string& Server::getRoot() const 
+{
+	return root;
+}
 
 void Server::pushServerName(const std::string& server_name)
 {
@@ -35,6 +45,7 @@ const std::vector<std::string>& Server::getServerNames() const { return server_n
 
 void Server::print_everything()
 {
+	std::cout << "root: " << root << "\n";
 	std::cout << "Server names: ";
 	printVectors(server_names);
 	std::cout << "Listen: ";
@@ -56,12 +67,12 @@ void Server::print_everything()
 	std::cout << "--------\n";
 }
 
-bool Server::operator==(const std::string& serverName)
+bool Server::operator==(const std::string& serverName) const
 {
 	return std::find(server_names.begin(), server_names.end(), serverName) != server_names.end();
 }
 
-bool Server::operator==(const listen_t& lst)
+bool Server::operator==(const listen_t& lst) const
 {
 	return std::find(listen.begin(), listen.end(), lst) != listen.end();
 }

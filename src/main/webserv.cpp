@@ -1,21 +1,22 @@
 #include "webserv.hpp"
 
-void loop();
+void loop(Config& conf);
 
 int main(int argc, char **argv)
 {
-	(void)argc;
-	(void)argv;
+(void)argc;
+(void)argv;
 
+
+try
+{
 	Config conf = ( argc > 1 ? Config(argv[1]) : Config() );
 
-	try
-	{
-		loop();
-		conf.getLocationData("127.0.0.1", "8080", "server2", "/a").printEverything("");
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "Error: " << e.what() << '\n';
-	}
+	// conf.getLocationData("127.0.0.1", "8080", "server2", "/a").printEverything("");
+	loop(conf);
+}
+catch(const std::exception& e)
+{
+	std::cerr << "Error: " << e.what() << '\n';
+}
 }

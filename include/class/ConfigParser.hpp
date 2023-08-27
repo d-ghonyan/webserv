@@ -27,9 +27,13 @@ class ConfigParser
 public:
 	typedef	std::map<std::string, std::string> Hosts;
 
-	typedef std::vector<Server>::iterator	iterator;
-	typedef LocationMap::iterator			location_iterator;
-	typedef	Hosts::iterator					host_iterator;
+	typedef std::vector<Server>::iterator		iterator;
+	typedef LocationMap::iterator				location_iterator;
+	typedef	Hosts::iterator						host_iterator;
+
+	typedef std::vector<Server>::const_iterator	const_iterator;
+	typedef LocationMap::const_iterator			const_location_iterator;
+	typedef	Hosts::const_iterator				const_host_iterator;
 
 protected:
 	Hosts hosts;
@@ -58,6 +62,7 @@ private:
 	std::string	storeIP(const std::string& _host, int count) const ;
 
 private:
+	void	root(const std::vector<std::string>& tokens, size_t& server_index, size_t& i);
 	void	listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
 	void	errorPage(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
 	void	serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);

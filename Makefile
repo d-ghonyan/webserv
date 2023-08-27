@@ -1,13 +1,16 @@
 NAME		= webserv
 MODULES		= $(shell cd src && find * -type d)
 
+SLASH		= /
+PWD			= $(shell pwd)$(SLASH)
+
 SDIR		= src/
 ODIR		= obj/
 INCDIR		= include/
 SRCDIR		= $(addprefix $(SDIR), $(MODULES))
 OBJDIR		= $(addprefix $(ODIR), $(MODULES))
 
-CXXFLAGS	= -Wall -Wextra -g -std=c++98# -fsanitize=address# -Werror
+CXXFLAGS	= -Wall -Wextra -g -std=c++98 -D DEFAULT_ROOT=\"$(PWD)\"# -fsanitize=address# -Werror
 INCLUDES	= $(addprefix -I $(INCDIR), $(MODULES))
 
 SRCS		= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.cpp))

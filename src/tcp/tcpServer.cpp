@@ -1,27 +1,58 @@
 #include "tcpServer.hpp"
 
-void init_sets(const int& sockfd, fd_set& master, fd_set& wrmaster)
+void init_sets(const std::vector<socket_t>& listeners, fd_set& master, fd_set& wrmaster)
 {
 	FD_ZERO(&master);
 	FD_ZERO(&wrmaster);
 
-	FD_SET(sockfd, &master);
+	for (size_t i = 0; i < listeners.size(); ++i)
+	{
+		FD_SET(listeners[i].fd, &master);
+	}
 }
 
-void loop()
+void getSockets(const std::vector<Server>& servers, std::vector<socket_t>& listeners)
+{
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		Server::listen_type listens = servers[i].getListens();
+
+		for (size_t j = 0; j < listens.size(); ++j)
+		{
+			if (std::find(listeners.begin(), listeners.end(), listens[j]) == listeners.end())
+			{
+				std::string host = listens[j].host;
+				std::string port = listens[j].port;
+
+				listeners.push_back(socket_t(getSocketListener(host == "" ? NULL : host.c_str(), port.c_str()), host, port));
+			}
+		}
+	}
+}
+
+void parseRequest(const std::string& req)
+{
+
+}
+
+void loop(Config& conf)
 {
 	int yes = 1;
-	int fd = getSocketListener(NULL, "8080");
 
 	fd_set readfd;
 	fd_set writefd;
 
-	std::map<int, std::string> writefds;
+	std::vector<socket_t> listeners;
+	std::map<int, recv_t> writefds;
+
+	getSockets(conf.getServers(), listeners);
+
+	int fd = listeners.back().fd;	
 
 	fd_set master;
 	fd_set wrmaster;
 
-	init_sets(fd, master, wrmaster);
+	init_sets(listeners, master, wrmaster);
 
 	int max_fd = fd;
 
@@ -37,6 +68,7 @@ void loop()
 
 		if (sel == 0)
 			continue ;
+
 		if (sel < 0)
 		{
 			perror("select");
@@ -45,31 +77,34 @@ void loop()
 
 		for (int i = 3; i <= max_fd; ++i)
 		{
-
 			if (FD_ISSET(i, &readfd))
 			{
-				if (i == fd)
+				std::vector<socket_t>::iterator it = std::find(listeners.begin(), listeners.end(), i);
+		
+				if (it != listeners.end())
 				{
 					std::cout << "i == fd\n";
-					int new_fd = accept(fd, (struct sockaddr *)&accepted, &size);
-
-					setsockopt(new_fd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof yes);
+					int new_fd = accept(it->fd, (struct sockaddr *)&accepted, &size);
 
 					FD_SET(new_fd, &master);
 
 					if (new_fd > max_fd)
 						max_fd = new_fd;
+
+					writefds[new_fd].listener_fd = it->fd;
 				}
 				else
 				{
 					std::cout << "i != fd\n";
-					char buf[MAX_BUF + 1];
 
-					ssize_t rec = recv(i, buf, MAX_BUF, 0);
+					ssize_t rec = recv(i, writefds[i].buf, MAX_BUF, 0);
 
 					if (rec <= 0)
 					{
+						if (rec < 0)
+							perror("recv");
 						std::cout << "recv <=0\n";
+
 						close(i);
 						FD_CLR(i, &master);
 						FD_CLR(i, &wrmaster);
@@ -77,19 +112,29 @@ void loop()
 					}
 					else
 					{
-						buf[rec] = 0;
+						writefds[i].buf[rec] = 0;
 
-						std::cout << buf << "\n";
-						writefds[i] = buf;
+						std::cout << writefds[i].buf << "\n";
+
 						FD_SET(i, &wrmaster);
 					}
 				}
 			}
 			if (FD_ISSET(i, &writefd))
 			{
-				if(send(i, listDirectiory(writefds[i].c_str()).c_str(), listDirectiory(writefds[i].c_str()).size(), 0) < 0)
+				std::vector<socket_t>::iterator listener = std::find(listeners.begin(), listeners.end(), writefds[i].listener_fd);
+
+				std::string url = getUrl(writefds[i].buf);
+
+				std::string file = openFile(writefds[i].buf, conf.getLocationData(listener->host, listener->port, "", url));
+
+				if(send(i, file.c_str(), file.size(), 0) < 0)
 					perror("send");
+
+				close(i);
+				FD_CLR(i, &master);
 				FD_CLR(i, &wrmaster);
+				writefds.erase(i);
 			}
 
 		}

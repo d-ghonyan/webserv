@@ -5,8 +5,8 @@
 # include <list>
 # include <vector>
 # include <iostream>
+# include <algorithm>
 
-# define DEFAULT_ROOT "www/"
 # define HTTP_REDIRECTION ""
 # define ALLOWED_METHODS "GET"
 # define DEFAULT_AUTOINDEX "off"
@@ -35,7 +35,7 @@ public:
 	void pushMethods(const std::string&);
 	void setAutoindex(const std::string&);
 
-	void setLevel(const int& level);
+	void setLevel(const int&);
 	void setHttpRedir(const std::string&);
 	void setUploadDir(const std::string&);
 
@@ -51,7 +51,7 @@ public:
 	Location(int loc_l, const std::string& prnt);
 
 	bool operator<(const Location& other) const ;
-	bool operator==(const Location& rhs) const;
+	bool operator==(const Location& rhs) const ;
 	Location& operator=(const Location& rhs);
 
 	~Location();

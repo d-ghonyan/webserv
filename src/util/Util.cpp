@@ -6,7 +6,13 @@ std::ostream& operator<<(std::ostream& os, const listen_t& ls)
 	return os;
 }
 
-bool listen_t::operator==(const listen_s& ls)
+std::ostream& operator<<(std::ostream& os, const socket_t& socket)
+{
+	os << socket.fd << ", host: " << socket.host << ", port: " << socket.port;
+	return os;
+}
+
+bool listen_t::operator==(const listen_s& ls) const
 {
 	return host == ls.host && port == ls.port;
 }
