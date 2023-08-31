@@ -205,7 +205,9 @@ void ConfigParser::parseLocations(std::vector<std::string> &tokens)
 
 	for (size_t i = 0; i < servers.size(); i++)
 	{
+		std::cout << "\t\tSERVER " << i + 1 << "\n\n";
 		servers[i].print_everything();
+		std::cout << "\n\n";
 	}
 	
 }

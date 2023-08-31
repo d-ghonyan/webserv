@@ -2,7 +2,7 @@ NAME		= webserv
 MODULES		= $(shell cd src && find * -type d)
 
 SLASH		= /
-PWD			= $(shell pwd)$(SLASH)
+PWD			= $(shell pwd)/www
 
 SDIR		= src/
 ODIR		= obj/

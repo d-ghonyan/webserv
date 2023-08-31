@@ -19,7 +19,7 @@ void Server::setMaxBodySize(size_t	l) { max_body_size = l; }
 
 void Server::setRoot(const std::string& rt)
 {
-	root = rt[0] == '/' ? rt : DEFAULT_ROOT + rt;
+	root = (rt[0] == '/' ? rt : DEFAULT_ROOT + rt);
 }
 
 const std::string& Server::getRoot() const 
@@ -45,26 +45,28 @@ const std::vector<std::string>& Server::getServerNames() const { return server_n
 
 void Server::print_everything()
 {
-	std::cout << "root: " << root << "\n";
-	std::cout << "Server names: ";
+	std::cout << "ROOT:\t\t\t" << root << "\n";
+	std::cout << "SERVER_NAMES:\t";
 	printVectors(server_names);
-	std::cout << "Listen: ";
+	std::cout << "LISTEN:\t\t";
 	printVectors(listen);
-	std::cout << "Error pages: \n";
+	std::cout << "ERROR_PAGES: \n";
 
+	int i = 0;
 	for (std::map<int, std::string>::iterator it = error_pages.begin(); it != error_pages.end(); ++it)
-		std::cout << "  " << it->first << " " << it->second << " \n";
+	{
+		std::cout << "\t" << ++i <<". " <<  it->first << " " << it->second << " \n";
+	}
 
-	std::cout << "\n";
-	std::cout << "Max body size: " << max_body_size << "\n";
-	std::cout << "Locations: \n--------\n";
+	std::cout << "\nMAX_BODY_SIZE:\t"<< max_body_size << "\n\n";
+	std::cout << "\t\tLOCATIONS:\n\n";
 
+	i = 0;
 	for (LocationMap::iterator it = locations.begin(); it != locations.end(); ++it)
 	{
-		it->second.printEverything("  ");
-		std::cout << "++++++++++++++\n\n";
+		std::cout << "--------------- LOCATION: " << it->first << " ---------------\n\n";
+		it->second.printEverything();
 	}
-	std::cout << "--------\n";
 }
 
 bool Server::operator==(const std::string& serverName) const
@@ -80,6 +82,7 @@ bool Server::operator==(const listen_t& lst) const
 template <typename T>
 void Server::printVectors(const std::vector<T>& vec)
 {
+	std::cout << "\t";
 	for (size_t i = 0; i < vec.size(); ++i)
 	{
 		std::cout << vec[i] << " ";
