@@ -12,11 +12,6 @@ std::ostream& operator<<(std::ostream& os, const socket_t& socket)
 	return os;
 }
 
-bool listen_t::operator==(const listen_s& ls) const
-{
-	return host == ls.host && port == ls.port;
-}
-
 bool NonDigit::operator()(char c)
 {
 	return !::isdigit(c);
@@ -39,6 +34,29 @@ std::vector<std::string> splitIP(const std::string& line, int delim_count, char 
 	return ret;
 }
 
+std::string my_to_string(int num)
+{
+	size_t pos = 0;
+	std::string ret;
+
+	if (num == 0)
+		return ("0");
+
+	if (num < 0)
+	{
+		ret.insert(0, 1, '-');
+		++pos;
+	}
+
+	while (num)
+	{
+		ret.insert(pos, 1, (num % 10) + 48);
+		num /= 10;
+	}
+
+	return ret;
+}
+
 // only positive numbers, -1 on error
 int my_stoi(const std::string& s)
 {
@@ -56,3 +74,10 @@ int my_stoi(const std::string& s)
 
 	return res;
 }
+
+bool socket_t::operator==(const socket_t& lhs) const { return host == lhs.host && port == lhs.port; }
+bool socket_t::operator==(const listen_t& lhs) const { return host == lhs.host && port == lhs.port; }
+bool socket_t::operator==(const int& socket) const { return fd == socket; }
+bool listen_t::operator==(const socket_t& socket) const { return host == socket.host && port == socket.port; }
+bool socket_t::operator==(const std::string& lhs) const { return port == lhs; }
+bool listen_t::operator==(const listen_t& ls) const { return host == ls.host && port == ls.port; }

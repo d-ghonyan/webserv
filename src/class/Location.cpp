@@ -2,7 +2,7 @@
 
 Location::Location():
 	_location_level(1), _cgi(DEFAULT_CGI), _root(), _autoindex(DEFAULT_AUTOINDEX), _httpRedir(HTTP_REDIRECTION),
-	_upload_dir(UPLOAD_DIRECTORY), _indexes(), _allowed_methods(), _parent()
+	_upload_dir(), _indexes(), _allowed_methods(), _parent()
 {
 
 }
@@ -27,13 +27,19 @@ void Location::pushMethods(const std::string& method)
 
 void Location::setCgi(const std::string& cgi) { _cgi = cgi; }
 
-void Location::setRoot(const std::string& root) { _root = root[0] == '/' ? root : DEFAULT_ROOT + root; }
+void Location::setRoot(const std::string& root)
+{
+	_root = root[0] == '/' ? root : DEFAULT_ROOT + root;
+
+	if (_root[_root.size() - 1] != '/')
+		_root += '/';
+}
 
 void Location::setAutoindex(const std::string& autoindex) { _autoindex = autoindex; }
 
 void Location::setHttpRedir(const std::string& redir) { _httpRedir = redir; }
 
-void Location::setUploadDir(const std::string& dir) { _upload_dir = dir; }
+void Location::setUploadDir(const std::string& dir) { _upload_dir = dir[dir.size() - 1] == '/' ? dir : dir + '/'; }
 
 void Location::setLevel(const int& level) { _location_level = level; }
 
@@ -83,7 +89,7 @@ void Location::printVectors(const std::vector<std::string>& vec) const
 {
 	for (size_t i = 0; i < vec.size(); ++i)
 	{
-		std::cout << "\t\t" <<  i + 1 << ". " << vec[i] << std::endl;;
+		std::cout << "\t\t" <<  i + 1 << ". " << vec[i] << "\n";
 	}
 	std::cout << "\n";
 }

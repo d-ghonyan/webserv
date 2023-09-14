@@ -12,7 +12,7 @@
 # define DEFAULT_HOST ""
 # define DEFAULT_PORT "8080"
 # define DEFAULT_SERVER_NAME ""
-# define DEFAULT_MAX_BODY_SIZE 1000
+# define DEFAULT_MAX_BODY_SIZE 1000000 // 1M
 
 # define DEFAULT_403_PAGE "error_pages/403.html"
 # define DEFAULT_404_PAGE "error_pages/404.html"
@@ -25,6 +25,7 @@ public:
 	typedef std::vector<std::string>	server_name_type;
 
 private:
+
 	ssize_t								max_body_size;
 	std::string							root;
 	std::vector<listen_t>				listen;
@@ -37,7 +38,7 @@ public:
 
 public:
 	void pushListen(const std::string& host, const std::string& port);
-	void setMaxBodySize(size_t l);
+	void setMaxBodySize(ssize_t l);
 	void setRoot(const std::string& rt);
 	void pushServerName(const std::string& server_name);
 	void pushErrorPage(int error_code, const std::string& error_page);

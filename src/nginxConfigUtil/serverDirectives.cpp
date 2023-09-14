@@ -43,13 +43,14 @@ void ConfigParser::listen(const std::vector<std::string>& tokens, size_t& server
 
 	size_t count = ++i;
 
+
 	while (tokens[count] !=  ";" && tokens[count] != "{" && tokens[count] != "}")
 	{
 		std::string	host("");
 		std::string	port("8080");
 
 		validationOfListen(tokens[count], host, port);
-	
+
 		servers[server_index].pushListen(host, port);
 
 		++count;
@@ -121,7 +122,7 @@ void ConfigParser::maxBodySize(const std::vector<std::string>& tokens, size_t& s
 
 bool ConfigParser::containsSpecialChar(const std::string& token)
 {
-	const std::string specChars("*;\"\'<>|&%#$@+-=");
+	const std::string specChars("*?:;\"\'<>|&%#$@+-=");
 
 	for (std::string::const_iterator it = token.begin(); it != token.end(); ++it)
 	{

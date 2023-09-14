@@ -15,16 +15,14 @@ void Server::pushListen(const std::string& host, const std::string& port)
 	listen.push_back(listen_t(host, port));
 }
 
-void Server::setMaxBodySize(size_t	l) { max_body_size = l; }
+void Server::setMaxBodySize(ssize_t l) { max_body_size = l; }
 
 void Server::setRoot(const std::string& rt)
 {
 	root = (rt[0] == '/' ? rt : DEFAULT_ROOT + rt);
-}
 
-const std::string& Server::getRoot() const 
-{
-	return root;
+	if (root[root.size() - 1] != '/')
+		root += '/';
 }
 
 void Server::pushServerName(const std::string& server_name)
@@ -36,6 +34,8 @@ void Server::pushServerName(const std::string& server_name)
 void Server::pushErrorPage(int error_code, const std::string& error_page) { error_pages[error_code] = error_page; }
 
 ssize_t Server::getMaxBodySize() const { return max_body_size; }
+
+const std::string& Server::getRoot() const { return root; }
 
 const std::vector<listen_t>& Server::getListens() const { return listen; }
 

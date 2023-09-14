@@ -25,26 +25,27 @@ class ConfigParser
 
 {
 public:
-	typedef	std::map<std::string, std::string> Hosts;
+	typedef	std::map<std::string, std::string>	Hosts;
 
 	typedef std::vector<Server>::iterator		iterator;
 	typedef LocationMap::iterator				location_iterator;
 	typedef	Hosts::iterator						host_iterator;
 
-	typedef std::vector<Server>::const_iterator	const_iterator;
-	typedef LocationMap::const_iterator			const_location_iterator;
-	typedef	Hosts::const_iterator				const_host_iterator;
+private:
+	std::string file_path;
 
-protected:
+public:
 	Hosts hosts;
 	std::vector<Server> servers;
 
 private:
-	static char const * const allowed_methods[];
-	static char const * const array_value_directives_location[];
-	static char const * const single_value_directives_location[];
+	static const int			error_page_numbers[];
+	static char const * const	error_pages[];
+	static char const * const	allowed_methods[];
+	static char const * const	array_value_directives_location[];
+	static char const * const	single_value_directives_location[];
 
-	bool contains(char const * const allowed_tokens[], const std::string& token);
+	bool	contains(char const * const allowed_tokens[], const std::string& token);
 
 private:
 	void	getHosts();
@@ -63,6 +64,7 @@ private:
 
 private:
 	void	root(const std::vector<std::string>& tokens, size_t& server_index, size_t& i);
+
 	void	listen(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
 	void	errorPage(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
 	void	serverName(const std::vector<std::string>& tokens, size_t& server_index, size_t& location_level, size_t& i);
@@ -72,13 +74,14 @@ private:
 	void	setter(Location& location, const std::string& name, const std::string& val);
 	void	setVectors(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
 	void	setProperties(Location& current_location, const std::vector<std::string>& tokens, size_t& i);
-	void	storeLocation(const std::vector<std::string>& tokens, std::vector<std::string>& current_location, size_t& location_level, const size_t& server_index, size_t& i);
+	void	storeLocation(std::vector<std::string>& tokens, std::vector<std::string>& current_location, size_t& location_level, const size_t& server_index, size_t& i);
 	void	setDefaults();
 
 public:
 	ConfigParser(const std::string &file_path);
 
-	void	parse(const std::string& file_path);
+	void	print();
+	void	parse();
 
 	~ConfigParser();
 };
