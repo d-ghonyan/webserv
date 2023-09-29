@@ -27,7 +27,10 @@ char const * const ConfigParser::error_pages[] = {
 	"error_pages/403.html",
 	"error_pages/404.html",
 	"error_pages/405.html",
+	"error_pages/408.html",
+	"error_pages/411.html",
 	"error_pages/413.html",
+	"error_pages/500.html",
 	NULL,
 };
 
@@ -36,17 +39,9 @@ const int ConfigParser::error_page_numbers[] = {
 	403,
 	404,
 	405,
+	408,
+	411,
 	413,
+	500,
 	0,
 };
-
-bool ConfigParser::contains(char const * const allowed[], const std::string &token)
-{
-	for (size_t i = 0; allowed[i]; ++i)
-	{
-		if (token == allowed[i])
-			return true;
-	}
-
-	return false;
-}

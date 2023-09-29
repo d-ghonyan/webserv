@@ -22,29 +22,31 @@ struct ClientInfo
 	std::string							url;
 	std::string							query;
 	std::string							method;
-	std::string 						response;
-	std::string							full_path;
+	std::string							response;
+	std::string							fullPath;
+	std::string							boundary;
 	std::string							allRequest;
-	std::string 						requestBody;
+	std::string							requestBody;
 	std::string							httpVersion;
-	std::string							reqstFirstline;
-	std::map<std::string,std::string> 	requestHeaders;
+	std::map<std::string,std::string>	requestHeaders;
+
+	static const char *allowed_content_type[];
 };
 
 struct	ServerInfo
 {
-	int									port;
 	bool								autoindex;
-	size_t	 							max_body_size;
-	std::vector<std::string>			server_names;
+	size_t								max_body_size;
+	socket_t							socket;
+	std::string							cgi;
 	std::string							root;
+	std::string							redirect; 
+	std::string							uploadDir;
+	std::vector<std::string>			server_names;
 	std::vector<std::string>			allow_methods;
 	std::vector<std::string>			index_files;
 	std::map<int, std::string>			error_pages;
-	std::string	 						redirect; 
-	std::map<std::string, ServerInfo> 	location;
-	std::string							cgi;
-	std::string							uploadDir;
+	std::map<std::string, ServerInfo>	location;
 };
 
 struct server_t {

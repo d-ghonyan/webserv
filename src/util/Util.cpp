@@ -17,6 +17,11 @@ bool NonDigit::operator()(char c)
 	return !::isdigit(c);
 }
 
+bool IsNotSpace::operator()(char c)
+{
+	return !std::isspace(c);
+}
+
 std::vector<std::string> splitIP(const std::string& line, int delim_count, char delim) // tox lrvi
 {
 	std::stringstream ss(line);
@@ -34,7 +39,7 @@ std::vector<std::string> splitIP(const std::string& line, int delim_count, char 
 	return ret;
 }
 
-std::string my_to_string(int num)
+std::string my_to_string(ssize_t num)
 {
 	size_t pos = 0;
 	std::string ret;
@@ -73,6 +78,35 @@ int my_stoi(const std::string& s)
 	}
 
 	return res;
+}
+
+// size_t?
+size_t my_stos_t(const std::string& s)
+{
+	if (s.size() > 10 || (s.size() == 10 && s > "2147483647")
+		|| std::find_if(s.begin(), s.end(), NonDigit()) != s.end())
+		return (-1);
+	
+	size_t res = 0;
+
+	for (size_t i = 0; i < s.size(); ++i)
+	{
+		res *= 10;
+		res += s[i] - 48;
+	}
+
+	return res;
+}
+
+bool contains(char const * const allowed[], const std::string &token)
+{
+	for (size_t i = 0; allowed[i]; ++i)
+	{
+		if (token == allowed[i])
+			return true;
+	}
+
+	return false;
 }
 
 bool socket_t::operator==(const socket_t& lhs) const { return host == lhs.host && port == lhs.port; }

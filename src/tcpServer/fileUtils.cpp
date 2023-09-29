@@ -1,53 +1,35 @@
 #include "TCPserver.hpp"
 
-bool TCPserver::checkFile(std::string &fileName, ResponseHeaders &heading, ServerInfo &servData)
+bool TCPserver::checkFile(std::string &fileName, ResponseHeaders &heading)
 {
 	struct stat fs;
 	stat(fileName.c_str(),&fs);
 
 	if(access(fileName.c_str(), F_OK) == -1)
 	{
-		fileName = servData.root + "/" + servData.error_pages[404];
 		heading.http_status = "404";
 		return true;
 	}
 	else if(!(S_IROTH & fs.st_mode))
 	{
-		fileName = servData.root + "/" + servData.error_pages[403];
 		heading.http_status = "403";
 		return true;
 	}
 	return false;
 }
 
-bool TCPserver::checkDir(std::string &dirName, ResponseHeaders &heading, ServerInfo &servData)
+bool TCPserver::checkDir(std::string &dirName, ResponseHeaders &heading)
 {
 	struct stat fs;
-	size_t len, start = 1;
-	bool 	forwhile = true;
-	std::string dName;
-
-	// while(forwhile)
-	// {
-	// 	len = dirName.find("/",start);
-	// 	if (len == std::string::npos)
-	// 	{
-	// 		dName = dirName;
-	// 		forwhile = false;
-	// 	}
-	// 	else
-	// 		dName = dirName.substr(0,len);
-	// 	start = len + 1;
 
 	stat(dirName.c_str(), &fs);
 
 	if (!(S_IXOTH & fs.st_mode))
 	{
-		dirName = servData.root + "/" + servData.error_pages[403];
 		heading.http_status = "403";
 		return true;
 	}
-	// } didn't work on my linux
+
 	return false;
 }
 
@@ -86,7 +68,7 @@ std::string TCPserver::listDir(std::string &name)
 	if(folder == NULL)
 	{
 		perror("Opendir");
-		return "not found";
+		return strerror(errno);
 	}
 
 	while( (entry = readdir(folder)) )

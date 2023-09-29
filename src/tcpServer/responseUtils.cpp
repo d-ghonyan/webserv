@@ -1,113 +1,131 @@
 #include "TCPserver.hpp"
 
-void TCPserver::setResponseFile(int client_socket, const socket_t& socket)
+void TCPserver::setResponseFile(ClientInfo& client, socket_t& socket)
 {
+	bool				isIndex = false;
 	std::string			fileName;
 	std::string			response;
 	ResponseHeaders		heading;
 
-	ServerInfo& servData = getLocationData(socket, clients[client_socket].requestHeaders["Host"], clients[client_socket].url);
+	ServerInfo& servData = getLocationData(socket, client.requestHeaders["Host"], client.url);
+
+	servData.socket = socket;
 
 	heading.http_status = "200";
 
-	if (isRedirect(heading, servData, client_socket))
+	if (isRedirect(heading, servData, client))
 		return ;
 
-	fileName = servData.root + clients[client_socket].url;
+	fileName = servData.root + client.url;
 
-	if (!checkMethod(fileName, heading, servData, client_socket) || checkBodySize(fileName, heading, servData, client_socket))
+	if (!checkMethod(heading, servData, client) || checkBodySize(heading, servData, client))
 	{
-		buildResponse(fileName, heading, servData, 0, client_socket);
+		buildResponse(fileName, heading, servData, 0, client);
 		return ;
 	}
 
-	if (clients[client_socket].url == "" || clients[client_socket].httpVersion != "HTTP/1.1"
-		|| clients[client_socket].requestHeaders["Host"] == "")
+	if (client.url.empty() || client.httpVersion != "HTTP/1.1"
+		|| client.requestHeaders["Host"].empty())
 	{
 		heading.http_status = "400";
-		fileName = servData.root + "/" + servData.error_pages[400];
-		buildResponse(fileName, heading, servData, 0, client_socket);
+		buildResponse(fileName, heading, servData, 0, client);
 
 		return ;
 	}
 
-	if (clients[client_socket].method == "GET")
+	if (client.requestHeaders["Content-Length"].empty() && client.requestHeaders["Transfer-Encoding"].empty())
+	{
+		heading.http_status = "411";
+		buildResponse(fileName, heading, servData, 0, client);
+
+		return ;
+	}
+
+	if (client.method == "GET")
 	{
 		if (isDir(fileName))
 		{
-			if (checkDir(fileName, heading, servData))
+			if (checkDir(fileName, heading))
 			{
-				buildResponse(fileName, heading, servData, 0, client_socket);
+				buildResponse(fileName, heading, servData, 0, client);
 				return ;
 			}
 			if (!servData.autoindex)
 			{
-				fileName = correctIndexFile(fileName, servData);
+				fileName = correctIndexFile(fileName, servData, heading);
+				isIndex = true;
 			}
 			else
 			{
-				buildResponse(fileName, heading, servData, 1, client_socket);
+				buildResponse(fileName, heading, servData, 1, client);
 				return ;
 			}
 		}
+		if (!isIndex)
+			checkFile(fileName, heading);
 	}
-	else if (clients[client_socket].method == "POST")
+	else if (client.method == "DELETE")
 	{
-		callCgi(servData, client_socket);
-		// std::fstream file((servData.uploadDir + clients[client_socket].url).c_str(), std::fstream::out);
-
-		// std::cout << (servData.uploadDir + clients[client_socket].url).c_str() << "\n";
-
-		// if (file.fail())
-		// {
-		// 	heading.http_status = "404";
-		// 	fileName = servData.root + "/" + servData.error_pages[404];
-		// 	perror("Fstream");
-		// }
-		// else
-		// 	file << clients[client_socket].requestBody.c_str();
-	}
-	else if (clients[client_socket].method == "DELETE")
-	{
-		if (std::remove((servData.uploadDir + clients[client_socket].url).c_str()) != 0)
+		if (std::remove((servData.uploadDir + client.url).c_str()) != 0)
 		{
 			heading.http_status = "404";
-			fileName = servData.uploadDir + servData.error_pages[404];
 			perror("Remove");
 		}
 	}
 
-	checkFile(fileName, heading, servData);
-	buildResponse(fileName, heading, servData, 0, client_socket);
+	buildResponse(fileName, heading, servData, 0, client);
 }
 
-void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, const ServerInfo servData, bool dir, int client_socket)
+void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, ServerInfo servData, bool dir, ClientInfo& client)
 {
+	std::string type;
 	std::string response;
-	std::string headers;
+
+	if (client.method == "POST")
+	{
+		parsePostRequest(client, heading, type);
+	}
+
+	int status = my_stoi(heading.http_status);
 
 	if (!dir)
 	{
-		heading.content_type = find_and_set_cont_type(client_socket);
+		heading.content_type = setContentType(client);
 		heading.build_headers();
-		headers = heading.headers;
-		response = headers;
-		if (fileName.rfind('.') != std::string::npos && fileName.substr(fileName.rfind('.')) == ".py")
-		{
-			response += callCgi(servData, client_socket);
-		}
+		response = heading.headers;
+
+		if ((status >= 300 && status <= 600))
+			response += readFile(servData.root + servData.error_pages[status]);
 		else
-			response += readFile(fileName);
-		clients[client_socket].full_path = fileName;
-		clients[client_socket].response = response;
+		{
+			if (fileName.rfind('.') != std::string::npos && fileName.substr(fileName.rfind('.')) == ".py")
+				callCgi(servData, client, response);
+			else if (client.method == "GET")
+				response += readFile(fileName);
+			else if (client.method == "POST")
+			{
+				if (type == "multipart/form-data")
+				{
+					if (postMultipart(client.requestBody, client.boundary, servData.uploadDir))
+						response += readFile(servData.root + servData.error_pages[500]);
+					else
+						response += "<center> <h1> Files uploaded! </h1> </center>";
+				}
+				else if (type == "image/jpeg" || type == "image/png")
+				{
+					// postImage(client.requestBody);
+				}
+			}
+		}
+
+		client.fullPath = fileName;
+		client.response = response;
 	}
 	else
 	{
 		heading.build_headers();
-		headers = heading.headers;
-		response = headers;
-		response += listDir(fileName);
-		clients[client_socket].response = response;
-		clients[client_socket].full_path = fileName;
+		response = heading.headers + listDir(fileName);
+		client.response = response;
+		client.fullPath = fileName;
 	}
 }

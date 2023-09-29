@@ -1,9 +1,14 @@
 #include "TCPserver.hpp"
 
+const char *ClientInfo::allowed_content_type[] = {
+	"image/jpeg",
+	"image/png",
+	"multipart/form-data",
+	NULL,
+};
+
 TCPserver::TCPserver(const Config& conf)
 {
-	myenv = NULL;
-
 	for(size_t i = 0; i < conf.servers.size(); ++i)
 	{
 		const Server& serv = conf.servers[i];
@@ -17,11 +22,11 @@ TCPserver::TCPserver(const Config& conf)
 		servinfo.info.error_pages = serv.getErrorPages();
 		servinfo.info.max_body_size = serv.getMaxBodySize();
 		servinfo.info.root = serv.getRoot();
-		servinfo.info.cgi = "/bin/ls"; // ??
+		servinfo.info.cgi = DEFAULT_CGI;
 		servinfo.info.redirect = "";
-		servinfo.info.uploadDir = serv.getRoot() + "/upload/";
+		servinfo.info.uploadDir = serv.getRoot() + UPLOAD_DIRECTORY;
 		servinfo.info.autoindex = false;
-		servinfo.info.index_files.push_back("index.html");
+		servinfo.info.index_files.push_back(DEFAULT_INDEX);
 
 		servinfo.info.allow_methods.push_back("GET");
 		servinfo.info.allow_methods.push_back("POST");
@@ -48,7 +53,7 @@ TCPserver::TCPserver(const Config& conf)
 	getSockets(conf);
 }
 
-void TCPserver::init_sets(fd_set& main_read, fd_set& main_write)
+void TCPserver::initFdSets(fd_set& main_read, fd_set& main_write)
 {
 	FD_ZERO(&main_read);
 	FD_ZERO(&main_write);
@@ -61,35 +66,31 @@ void TCPserver::init_sets(fd_set& main_read, fd_set& main_write)
 
 void TCPserver::server_loop()
 {
-	int max_fd;
-	int rc, ret = 0;
+	int rc;
+	int max_fd = INT_MIN;
 
 	fd_set read;
 	fd_set write;
 	fd_set main_read;
 	fd_set main_write;
 
-	struct sockaddr_in *clntAddr = NULL;
+	struct sockaddr_in clntAddr;
 	socklen_t clntAddrlen = sizeof(clntAddr);
 
+	std::vector<int> acceptedFd;
 	std::vector<socket_t> allFd;
 
 	for(std::vector<socket_t>::iterator it = sockets.begin(); it != sockets.end(); ++it)
 	{
 		std::cout << it->fd << ", " << it->host << ":" << it->port << "\n";
+
+		if (it->fd > max_fd)
+			max_fd = it->fd;
+
 		allFd.push_back(*it);
 	}
 
-	for(std::vector<socket_t>::iterator it = allFd.begin(); it != allFd.end(); it++)
-	{
-		if (it->fd > ret)
-			ret = it->fd;
-	}
-
-	max_fd = ret;
-	ret = 0;
-
-	init_sets(main_read, main_write);
+	initFdSets(main_read, main_write);
 
 	while(1)
 	{
@@ -98,86 +99,105 @@ void TCPserver::server_loop()
 
 		rc = select(max_fd + 1, &read, &write, NULL, NULL);
 
-		if (rc == 0)
-			continue ;
+		std::cout << "select: " << rc << "\n";
 
-		for (int i = 3; i <= max_fd; ++i)
+		try
 		{
-			if (FD_ISSET(i, &read))
+			if (rc < 0)
 			{
-				std::vector<socket_t>::iterator it = std::find(sockets.begin(), sockets.end(), i);
+				perror("Select error");
+				continue ;
+			}
 
-				if (it != sockets.end())
+			for (int i = 3; i <= max_fd; ++i)
+			{
+				if (FD_ISSET(i, &read))
 				{
-					int clnt = accept(i, (struct sockaddr *)clntAddr, &clntAddrlen);
+					std::vector<socket_t>::iterator it = std::find(sockets.begin(), sockets.end(), i);
 
-					if (clnt < 0)
+					if (it != sockets.end())
 					{
-						std::cerr << "accept failed -> " << errno << std::endl;
-						perror("accept");
-						break ; // is this enough
+						int clnt = accept(i, (struct sockaddr *)&clntAddr, &clntAddrlen);
+
+						if (clnt < 0)
+						{
+							perror("Accept error");
+							break ; // is this enough
+						}
+
+						if (clnt > max_fd)
+							max_fd = clnt;
+
+						allFd.push_back(socket_t(clnt, it->host, it->port));
+
+						FD_SET(clnt, &main_read);
+
+						fcntl(clnt, F_SETFL, O_NONBLOCK);
 					}
+					else
+					{
+						int res = receive(clients[i], i);
 
-					if (clnt > max_fd)
-						max_fd = clnt;
+						if (res == 1)
+						{
+							for (std::map<std::string, std::string>::iterator it = clients[i].requestHeaders.begin(); it != clients[i].requestHeaders.end(); ++it)
+							{
+								std::cout << it->first << ": " << it->second << "\n";
+							}
+							setResponseFile(clients[i], *(std::find(allFd.begin(), allFd.end(), i)));
 
-					allFd.push_back(socket_t(clnt, it->host, it->port));
+							FD_SET(i, &main_write);
+							FD_CLR(i, &main_read);
+						}
+						else if (res <= 0)
+						{
+							close (i);
+							clients.erase(i);
 
-					FD_SET(clnt, &main_read);
+							allFd.erase(std::find(allFd.begin(), allFd.end(), i));
 
-					fcntl(clnt, F_SETFL, O_NONBLOCK);
+							FD_CLR(i, &main_write);
+							FD_CLR(i, &main_read);
+
+							break ;
+						}
+					}
 				}
-				else
+				if (FD_ISSET(i, &write))
 				{
-					ret = recvfully(i);
-					if (ret <= 0 || ret == MAX_BUF)
+					if (sendResponse(i))
 					{
 						close (i);
-						clients.erase(i);
+						clients.erase(clients.find(i));
 						allFd.erase(std::find(allFd.begin(), allFd.end(), i));
 						FD_CLR(i, &main_write);
 						FD_CLR(i, &main_read);
-
-						if (ret == MAX_BUF)
-							std::cout << "Request too large\n";
-
-						break ;
 					}
-
-					std::cout << clients[i].allRequest << "\n";
-
-
-
-					setResponseFile(i, *(std::find(allFd.begin(), allFd.end(), i)));
-					FD_SET(i, &main_write);
-					FD_CLR(i, &main_read);
 				}
 			}
-			if (FD_ISSET(i, &write))
-			{
-				sendResponse(i);
-				close (i);
-				clients.erase(clients.find(i));
-				allFd.erase(std::find(allFd.begin(), allFd.end(), i));
-				FD_CLR(i, &main_write);
-				FD_CLR(i, &main_read);
-			}
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << "Error: " << e.what() << '\n';
 		}
 	}
 }
 
-std::string	TCPserver::find_and_set_cont_type(int client_socket)
+std::string	TCPserver::setContentType(ClientInfo& client)
 {
-	if (clients[client_socket].url.find(".css") != std::string::npos)
+	if (client.url.find(".css") != std::string::npos)
 		return ("text/css");
-	else if (clients[client_socket].url.find(".jpg") != std::string::npos)
+	else if (client.url.find(".jpg") != std::string::npos
+			|| client.url.find(".jpeg") != std::string::npos)
 		return ("image/jpeg");
+	else if (client.url.find(".png") != std::string::npos)
+		return ("image/png");
 
 	//typeri checky avelacnel
 	return ("text/html");
 }
 
-std::string TCPserver::correctIndexFile(std::string &fileName, ServerInfo &servData)
+std::string TCPserver::correctIndexFile(std::string &fileName, ServerInfo &servData, ResponseHeaders& headers)
 {
 	std::string full_path;
 
@@ -188,32 +208,21 @@ std::string TCPserver::correctIndexFile(std::string &fileName, ServerInfo &servD
 			return full_path;
 	}
 
-	return servData.root + "/" + servData.error_pages[403];
+	headers.http_status = "403";
+	return "";
 }
 
 TCPserver::~TCPserver() { }
 
-/*
-16D85ACC441674FBA2DF65190663F 33F793984B142405F56715D5225FBAB6E3D6A4F1670 20A16827E1B16612137E59ECD492E4 7AB764CB10B45D979615AC9FC74D521D920A778A5E
+// struct timeval timeout = {0, 0};
+// timeout.tv_sec = 10;
+// timeout.tv_usec = 0;
+// for (int i = 3; i <= max_fd; ++i)
+// {
+	// 	std::vector<socket_t>::iterator it = std::find(sockets.begin(), sockets.end(), i);
 
-16D85ACC441674FBA2DF65190663F 42A3832CEA21E024516795E1223BBA77916734D1261 20A16827E1B16612137E59ECD492E4 6EAB67D109B142D49054A7C281404901890F619D682524F5
-
-16D85ACC441674FBA2DF65190663F33F793984B142405F56715D5225FBAB6E3D6A4F167020A16827E1B16612137E59ECD492E47AB764CB10B45D979615AC9FC74D521D920A778A5E
-
-16D85ACC441674FBA2DF65190663F42A3832CEA21E024516795E1223BBA77916734D126120A16827E1B16612137E59ECD492E46EAB67D109B142D49054A7C281404901890F619D682524F5
-
-
-file.bfe:VAA0DAYFf07ym3ROeASsmsgnY0o0sDMJev7zFHhwQS8mvM8V5xQQpLc6cDCFXDWTiFzZ2H9skYkiJ/DpQtnM/uZ0
-
-file.bfe:VABB7yO9xm7xWXROeASsmsgnY0o0sDMJev7zFHhwQS8mvM8V5xQQpLc6cDCFXDWTiFzZ2H9skYkiJ/DpQtnM/uZ0
-
-file.bfe:VACsSfsWN1cy33ROeASsmsgnY0o0sDMJev7zFHhwQS8mvM8V5xQQpLc6cDCFXDWTiFzZ2H9skYkiJ/DpQtnM/uZ0
-
-file.bfe:VAD2sO2qgbqPEXROeASsmsgnY0o0sDMJev7zFHhwQS8mvM8V5xQQpLc6cDCFXDWTiFzZ2H9skYkiJ/DpQtnM/uZ0
-
-
-file.bfe:VADYjxBiOQSAWNqB652klCj13URaziELdHd+2Z38XCMD9dvO9tSyFob6Il3NBX9YXrgZEiQK7JZJ7w5t0N80wMl7
-
-file.bfe:VAAe8ElCrUAbXivz0ueiIpv/u/ia9PL50+HI+8/bgPKLESHlptPLpu0PW9zWV/LwDVaOqCRCGu6Gopk1X0i6Kn7t
-
-*/
+	// 	if (FD_ISSET(i, &main_read) && it == sockets.end())
+	// 	{
+	// 		close(i);
+	// 	}
+// }
