@@ -4,6 +4,7 @@ const char *ClientInfo::allowed_content_type[] = {
 	"image/jpeg",
 	"image/png",
 	"multipart/form-data",
+	"text/plain",
 	NULL,
 };
 

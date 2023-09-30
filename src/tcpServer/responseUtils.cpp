@@ -113,11 +113,14 @@ void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, S
 					else
 						response += "<center> <h1> Files uploaded! </h1> </center>";
 				}
-				else if (type == "image/jpeg" || type == "image/png")
+				else if (type == "image/jpeg" || type == "image/png" || type == "text/plain")
 				{
-					std::cout << "barlus dzez: " << client.requestBody << "\n";
-					
-					// postImage(client.requestBody);
+					if (post(type, client.requestBody, servData.uploadDir))
+					{
+						response += readFile(servData.root + servData.error_pages[500]);
+					}
+					else
+						response += "<center> <h1> Files uploaded! </h1> </center>";
 				}
 			}
 		}

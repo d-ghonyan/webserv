@@ -59,9 +59,40 @@ bool TCPserver::postMultipart(std::string& requestBody, std::string& boundary, s
 	return fail;
 }
 
-void TCPserver::postImage()
+int TCPserver::post(std::string& type, std::string &body, std::string& upload)
 {
+	std::string extension;
 
+	if (type == "image/jpeg")
+		extension = ".jpg";
+	else if (type == "image/png")
+		extension = ".png";
+	else if (type == "text/plain")
+		extension = ".txt";
+
+	if (std::find_if(body.begin(), body.end(), IsNotSpace()) == body.end())
+		return 0;
+
+	std::string filename = "download";
+
+	std::string temp = filename;
+
+	for (size_t i = 1; access((upload + filename + extension).c_str(), F_OK) == 0; ++i)
+	{
+		filename = temp + " (" + my_to_string(i) + ")";
+	}
+
+	std::fstream file((upload + filename + extension).c_str(), std::ios::out | std::ios::binary);
+
+	if (file.fail())
+	{
+		perror(("Fstream: " + upload + filename + extension).c_str());
+		return errno;
+	}
+
+	file << body;
+
+	return 0;
 }
 
 int TCPserver::parseBody(std::string& body, std::string& headers, std::string& upload)
