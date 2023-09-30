@@ -38,7 +38,8 @@
 </div>
 </body>
 </html> -->
-<!DOCTYPE html>
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -50,5 +51,54 @@
 	<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
 		<img src="https://http.cat/images/404.jpg" alt="">
 	</div>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>404</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #statusCode {
+            font-size: 24px;
+            color: red;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #333;
+        }
+
+        video {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        iframe {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <p>Status Code: <span id="statusCode">404</span></p>
+    <video id="videoPlayer" width="640" height="360" controls autoplay loop >
+        <source src="/error_pages/404.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Simulate an error status code (for demonstration purposes) -->
+    <!-- <iframe src="404.html"></iframe> -->
 </body>
 </html>
