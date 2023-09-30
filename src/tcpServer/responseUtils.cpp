@@ -34,8 +34,8 @@ void TCPserver::setResponseFile(ClientInfo& client, socket_t& socket)
 	}
 
 	if (client.method == "POST"
-		&& client.requestHeaders["Content-Length"].empty()
-		&& client.requestHeaders["Transfer-Encoding"].empty())
+		&& ((client.requestHeaders["Content-Length"].empty()
+		&& client.requestHeaders["Transfer-Encoding"].empty()) || client.chunkedFail))
 	{
 		heading.http_status = "411";
 		buildResponse(fileName, heading, servData, 0, client);
@@ -115,6 +115,8 @@ void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, S
 				}
 				else if (type == "image/jpeg" || type == "image/png")
 				{
+					std::cout << "barlus dzez: " << client.requestBody << "\n";
+					
 					// postImage(client.requestBody);
 				}
 			}

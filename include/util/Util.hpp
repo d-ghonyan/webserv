@@ -44,6 +44,7 @@ size_t my_stos_t(const std::string& s);
 std::vector<std::string> splitIP(const std::string& line, int delim_count, char delim); // tox lrvi
 std::string my_to_string(ssize_t num);
 bool contains(char const * const allowed[], const std::string &token);
+ssize_t hex_to_int(const std::string& hex);
 
 struct NonDigit
 {
@@ -51,6 +52,11 @@ struct NonDigit
 };
 
 struct IsNotSpace
+{
+	bool operator()(char c);
+};
+
+struct NotValidHex
 {
 	bool operator()(char c);
 };

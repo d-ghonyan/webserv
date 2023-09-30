@@ -10,7 +10,7 @@ void TCPserver::parsePostRequest(ClientInfo& client, ResponseHeaders& headers, s
 	if (!contains(ClientInfo::allowed_content_type, type)
 		|| (type == "multipart/form-data" && (client.boundary == "--"
 		|| client.requestBody.find(client.boundary + "--") == std::string::npos)))
-		headers.http_status = "400";
+			headers.http_status = "400";
 }
 
 std::string	TCPserver::getBoundary(std::string contentType)

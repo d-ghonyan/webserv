@@ -1,6 +1,6 @@
 #include "TCPserver.hpp"
 
-int TCPserver::receive(ClientInfo& client, int clnt)
+int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 {
 	ssize_t	bytes = 1;
 	ssize_t	max = 150000 - 1;
@@ -46,7 +46,10 @@ int TCPserver::receive(ClientInfo& client, int clnt)
 
 	if (!client.requestHeaders["Content-Length"].empty())
 	{
-		if (client.allRequest.size() == my_stos_t(client.requestHeaders["Content-Length"]))
+		ServerInfo& servData = getLocationData(socket, client.requestHeaders["Host"], client.url);
+
+		if (client.allRequest.size() >= servData.max_body_size
+			|| client.allRequest.size() == my_stos_t(client.requestHeaders["Content-Length"]))
 		{
 			client.requestBody = client.allRequest;
 			return 1;
@@ -54,6 +57,12 @@ int TCPserver::receive(ClientInfo& client, int clnt)
 	}
 	else if (client.requestHeaders["Transfer-Encoding"] == "chunked")
 	{
+		if (client.allRequest.find("\r\n0\r\n") != std::string::npos)
+		{
+			parseChunked(client);
+			return 1;
+		}
+
 		// parse chunked request;
 	}
 	else

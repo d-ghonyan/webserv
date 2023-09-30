@@ -99,7 +99,7 @@ void TCPserver::server_loop()
 
 		rc = select(max_fd + 1, &read, &write, NULL, NULL);
 
-		std::cout << "select: " << rc << "\n";
+		// std::cout << "select: " << rc << "\n";
 
 		try
 		{
@@ -136,14 +136,14 @@ void TCPserver::server_loop()
 					}
 					else
 					{
-						int res = receive(clients[i], i);
+						int res = receive(clients[i], i, *(std::find(allFd.begin(), allFd.end(), i)));
 
 						if (res == 1)
 						{
-							for (std::map<std::string, std::string>::iterator it = clients[i].requestHeaders.begin(); it != clients[i].requestHeaders.end(); ++it)
-							{
-								std::cout << it->first << ": " << it->second << "\n";
-							}
+							// for (std::map<std::string, std::string>::iterator it = clients[i].requestHeaders.begin(); it != clients[i].requestHeaders.end(); ++it)
+							// {
+							// 	std::cout << it->first << ": " << it->second << "\n";
+							// }
 							setResponseFile(clients[i], *(std::find(allFd.begin(), allFd.end(), i)));
 
 							FD_SET(i, &main_write);

@@ -19,6 +19,7 @@ class ResponseHeaders
 
 struct ClientInfo
 {
+	bool								chunkedFail;
 	std::string							url;
 	std::string							query;
 	std::string							method;
@@ -31,6 +32,8 @@ struct ClientInfo
 	std::map<std::string,std::string>	requestHeaders;
 
 	static const char *allowed_content_type[];
+
+	ClientInfo(): chunkedFail(false) { };
 };
 
 struct	ServerInfo

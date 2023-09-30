@@ -22,6 +22,26 @@ bool IsNotSpace::operator()(char c)
 	return !std::isspace(c);
 }
 
+bool NotValidHex::operator()(char c)
+{
+	c = std::tolower(c);
+
+	return (c < 'a' || c > 'f') && !std::isdigit(c);
+}
+
+ssize_t hex_to_int(const std::string& hex)
+{
+	ssize_t res = 0;
+	std::stringstream ss(hex);
+
+	if (hex.empty() || std::find_if(hex.begin(), hex.end(), NotValidHex()) != hex.end())
+		return -1;
+
+	ss >> std::hex >> res;
+
+	return res;
+}
+
 std::vector<std::string> splitIP(const std::string& line, int delim_count, char delim) // tox lrvi
 {
 	std::stringstream ss(line);

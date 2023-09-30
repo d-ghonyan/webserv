@@ -87,12 +87,50 @@ void TCPserver::setUrlAndMethod(ClientInfo& client)
 		client.method = "NONE";
 }
 
-size_t TCPserver::urlLength(std::string &str)
+void TCPserver::parseChunked(ClientInfo& client)
 {
-	size_t len = str.find('?');
+	std::string request = client.allRequest;
 
-	if (len == std::string::npos)
-		return str.size();
+	size_t start = 0;
 
-	return (len);
+	while ("Mika 2")
+	{
+		size_t pos = request.find("\r\n", start);
+
+		std::string hex = request.substr(start, pos - start);
+
+		ssize_t num = hex_to_int(hex);
+
+		std::cout << "--" << hex << "--\n";
+
+		if (num <= 0)
+		{
+			client.chunkedFail = (num == -1);
+			std::cout << client.requestBody << "\n";
+			return ;
+		}
+
+		std::cout << "To int: " << num << "\n";
+
+		std::string body = request.substr(start + hex.size() + 2, num);
+
+		std::cout << body << "\n";
+
+		start += hex.size() + 2 + num + 2;
+
+		if (start >= request.size())
+		{
+			client.chunkedFail = true;
+			return ;
+		}
+
+		client.requestBody += body;
+
+		// break ;
+		// if (num <= 0)
+		// 	break ;
+
+		// start += 123123;
+	}
+
 }

@@ -17,6 +17,7 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
+# include <signal.h>
 # include <unistd.h>
 # include <dirent.h>
 # include <sys/wait.h>
@@ -48,8 +49,9 @@ private:
 	void			getSockets(const Config& conf);
 
 private:
-	int				receive(ClientInfo& client, int clnt);
+	int				receive(ClientInfo& client, int clnt, socket_t& socket);
 	void			parseRequest(ClientInfo& client);
+	void			parseChunked(ClientInfo& client);
 	void			setUrlAndMethod(ClientInfo& client);
 	void			setResponseFile(ClientInfo& client, socket_t& listen);
 	void			buildResponse(std::string& fileName, ResponseHeaders &heading, ServerInfo servData, bool dir, ClientInfo& client);
