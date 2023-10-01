@@ -30,6 +30,9 @@
 # include "Config.hpp"
 # include "ServerUtils.hpp"
 
+# define READ 0
+# define WRITE 1
+
 # define MAX_BUF (1024UL * 1024UL * 1024UL * 15UL)
 
 class TCPserver
@@ -51,7 +54,7 @@ private:
 private:
 	int				receive(ClientInfo& client, int clnt, socket_t& socket);
 	void			parseRequest(ClientInfo& client);
-	void			parseChunked(ClientInfo& client);
+	void			parseChunked(ClientInfo& client, size_t max_body_size);
 	void			setUrlAndMethod(ClientInfo& client);
 	void			setResponseFile(ClientInfo& client, socket_t& listen);
 	void			buildResponse(std::string& fileName, ResponseHeaders &heading, ServerInfo servData, bool dir, ClientInfo& client);
@@ -65,7 +68,7 @@ private:
 	bool			checkBodySize(ResponseHeaders &heading, ServerInfo &servData, ClientInfo& client);
 	bool			isRedirect(ResponseHeaders &headers, ServerInfo &info, ClientInfo& client);
 	void			callCgi(ServerInfo& servData, ClientInfo& client, std::string& response);
-	size_t			urlLength(std::string &str);
+	void			cgiChild(ServerInfo& servData, ClientInfo& client, int pipe_from_child[2], int pipe_to_child[2]);
 	std::string		correctIndexFile(std::string &filename, ServerInfo &servData, ResponseHeaders& heading);
 	char * const *	setEnv(std::map<std::string, std::string>& env, ServerInfo& servData, ClientInfo& client);
 

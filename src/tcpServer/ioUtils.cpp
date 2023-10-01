@@ -57,9 +57,12 @@ int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 	}
 	else if (client.requestHeaders["Transfer-Encoding"] == "chunked")
 	{
+
 		if (client.allRequest.find("\r\n0\r\n") != std::string::npos)
 		{
-			parseChunked(client);
+			ServerInfo& servData = getLocationData(socket, client.requestHeaders["Host"], client.url);
+
+			parseChunked(client, servData.max_body_size);
 			return 1;
 		}
 

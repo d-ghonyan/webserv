@@ -1,14 +1,13 @@
 #!/usr/bin/python
 
-while 1:
-	pass
+import cgi, os
+import cgitb
+cgitb.enable()
 
-# import cgi, os
-# import cgitb; cgitb.enable()
-# form = cgi.FieldStorage()
-# # Get filename here.
+form = cgi.FieldStorage()
+# Get filename here.
 
-# print(form)
+print(form)
 
 # fileitem = form['filename']
 # # Test if the file was uploaded
@@ -21,7 +20,7 @@ while 1:
  
 # else:
 #    message = 'No file was uploaded'
- 
+
 # print ("""\
 # Content-Type: text/html\n
 # <html>

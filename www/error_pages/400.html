@@ -94,12 +94,19 @@
     <p>Status Code: <span id="statusCode">N/A</span></p>
 
     <h2>Video Player</h2>
-    <video id="videoPlayer" width="640" height="360" controls>
-        <source src="400.mp4" type="video/mp4">
+    <video id="videoPlayer" width="640" height="360" controls autoplay loop>
+        <source src="/error_pages/400.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
+	<script>
+		// let video = document.getElementById("videoPlayer");
+
+
+
+		// video.muted = !video.muted;
+	</script>
+
     <!-- Simulate an error status code (for demonstration purposes) -->
-    <iframe src="400.html"></iframe>
 </body>
 </html>

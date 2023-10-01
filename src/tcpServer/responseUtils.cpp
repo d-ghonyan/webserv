@@ -101,9 +101,13 @@ void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, S
 		else
 		{
 			if (fileName.rfind('.') != std::string::npos && fileName.substr(fileName.rfind('.')) == ".py")
+			{
 				callCgi(servData, client, response);
+			}
 			else if (client.method == "GET")
+			{
 				response += readFile(fileName);
+			}
 			else if (client.method == "POST")
 			{
 				if (type == "multipart/form-data")
@@ -124,9 +128,9 @@ void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, S
 				}
 			}
 		}
-
 		client.fullPath = fileName;
 		client.response = response;
+
 	}
 	else
 	{

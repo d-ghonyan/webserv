@@ -129,6 +129,16 @@ bool contains(char const * const allowed[], const std::string &token)
 	return false;
 }
 
+
+void close_pipes(int pipe_from[2], int pipe_to[2])
+{
+	close(pipe_to[0]);
+	close(pipe_to[1]);
+
+	close(pipe_from[0]);
+	close(pipe_from[1]);
+}
+
 bool socket_t::operator==(const socket_t& lhs) const { return host == lhs.host && port == lhs.port; }
 bool socket_t::operator==(const listen_t& lhs) const { return host == lhs.host && port == lhs.port; }
 bool socket_t::operator==(const int& socket) const { return fd == socket; }

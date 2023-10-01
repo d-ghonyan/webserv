@@ -6,6 +6,8 @@
 # include <iostream>
 # include <algorithm>
 
+# include <unistd.h>
+
 struct listen_t;
 
 struct socket_t
@@ -45,6 +47,7 @@ std::vector<std::string> splitIP(const std::string& line, int delim_count, char 
 std::string my_to_string(ssize_t num);
 bool contains(char const * const allowed[], const std::string &token);
 ssize_t hex_to_int(const std::string& hex);
+void close_pipes(int pipe_from[2], int pipe_to[2]);
 
 struct NonDigit
 {
