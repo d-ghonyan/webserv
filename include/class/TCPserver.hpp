@@ -33,6 +33,8 @@
 # define READ 0
 # define WRITE 1
 
+# define SOCKET_TIMEOUT 10
+
 # define MAX_BUF (1024UL * 1024UL * 1024UL * 15UL)
 
 class TCPserver

@@ -75,6 +75,7 @@ void TCPserver::server_loop()
 	fd_set main_read;
 	fd_set main_write;
 
+	struct timeval timeout;
 	struct sockaddr_in clntAddr;
 	socklen_t clntAddrlen = sizeof(clntAddr);
 
@@ -97,8 +98,10 @@ void TCPserver::server_loop()
 	{
 		read = main_read;
 		write = main_write;
+		timeout.tv_sec = 3;
+		timeout.tv_usec = 0;
 
-		rc = select(max_fd + 1, &read, &write, NULL, NULL);
+		rc = select(max_fd + 1, &read, &write, NULL, &timeout);
 
 		// std::cout << "select: " << rc << "\n";
 
@@ -108,6 +111,30 @@ void TCPserver::server_loop()
 			{
 				perror("Select error");
 				continue ;
+			}
+
+			for (size_t i = 0; i < allFd.size(); ++i)
+			{
+					std::cout << "HELLO2\n";
+				if (FD_ISSET(allFd[i].fd, &main_read) && std::find(sockets.begin(), sockets.end(), allFd[i]) == sockets.end())
+				{
+					std::cout << "HELLO1\n";
+					if (time(NULL) - allFd[i].timeout >= SOCKET_TIMEOUT - 5)
+					{
+						std::cout << "HELLO\n";
+						ResponseHeaders headers;
+
+						headers.http_status = "408";
+						headers.build_headers();
+						clients[allFd[i].fd].response = headers.headers;
+
+						clients.erase(allFd[i].fd);
+						sendResponse(allFd[i].fd);
+						close(allFd[i].fd);
+						allFd.erase(std::find(allFd.begin(), allFd.end(), allFd[i].fd));
+						FD_CLR(allFd[i].fd, &main_read);
+					}
+				}
 			}
 
 			for (int i = 3; i <= max_fd; ++i)
@@ -137,6 +164,7 @@ void TCPserver::server_loop()
 					}
 					else
 					{
+						std::cout << "else\n";
 						int res = receive(clients[i], i, *(std::find(allFd.begin(), allFd.end(), i)));
 
 						if (res == 1)
@@ -150,7 +178,7 @@ void TCPserver::server_loop()
 							FD_SET(i, &main_write);
 							FD_CLR(i, &main_read);
 						}
-						else if (res <= 0)
+						else if (res < 0)
 						{
 							close (i);
 							clients.erase(i);

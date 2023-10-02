@@ -13,6 +13,7 @@ struct listen_t;
 struct socket_t
 {
 	int fd;
+	time_t timeout;
 	std::string host;
 	std::string port;
 
@@ -22,8 +23,8 @@ struct socket_t
 	bool operator==(const std::string& lhs) const ;
 
 	socket_t(): fd(-1) { }
-	socket_t(const std::string& hst, const std::string& prt): fd(-1), host(hst), port(prt) { }
-	socket_t(const int& socket, const std::string& hst, const std::string& prt): fd(socket), host(hst), port(prt) { }
+	socket_t(const std::string& hst, const std::string& prt): fd(-1), timeout(time(NULL)), host(hst), port(prt) { }
+	socket_t(const int& socket, const std::string& hst, const std::string& prt): fd(socket), timeout(time(NULL)), host(hst), port(prt) { }
 };
 
 struct listen_t

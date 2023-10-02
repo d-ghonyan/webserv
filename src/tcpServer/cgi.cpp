@@ -62,6 +62,7 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 		perror("pipe error");
 		close_pipes(pipe_from_child, pipe_to_child);
 		response += readFile(servData.root + servData.error_pages[500]);
+		return ;
 	}
 
 	fcntl(pipe_to_child[WRITE], F_SETFL, O_NONBLOCK, O_CLOEXEC);

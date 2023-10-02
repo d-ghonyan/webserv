@@ -7,6 +7,8 @@ void TCPserver::setResponseFile(ClientInfo& client, socket_t& socket)
 	std::string			response;
 	ResponseHeaders		heading;
 
+	std::cout << "ischunked222\n";
+
 	ServerInfo& servData = getLocationData(socket, client.requestHeaders["Host"], client.url);
 
 	servData.socket = socket;

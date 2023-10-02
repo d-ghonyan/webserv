@@ -83,7 +83,10 @@
 		"cinttypes": "cpp",
 		"hashtable": "cpp",
 		"stop_token": "cpp",
-		"__memory": "cpp"
+		"__memory": "cpp",
+		"__bits": "cpp",
+		"__verbose_abort": "cpp",
+		"variant": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "Disabled",
 	"workbench.panel.defaultLocation": "right",

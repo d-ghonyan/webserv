@@ -22,7 +22,7 @@ int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 	std::cout << "Bytes: " << bytes << "\n";
 
 	if (bytes <= 0)
-		return -1;
+		return bytes;
 
 	for (ssize_t i = 0; i < bytes; i++)
 	{
@@ -57,7 +57,7 @@ int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 	}
 	else if (client.requestHeaders["Transfer-Encoding"] == "chunked")
 	{
-
+		std::cout << "ischunked\n";
 		if (client.allRequest.find("\r\n0\r\n") != std::string::npos)
 		{
 			ServerInfo& servData = getLocationData(socket, client.requestHeaders["Host"], client.url);
@@ -65,8 +65,6 @@ int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 			parseChunked(client, servData.max_body_size);
 			return 1;
 		}
-
-		// parse chunked request;
 	}
 	else
 		return 1; // error, no length
