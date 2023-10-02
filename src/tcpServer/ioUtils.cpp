@@ -5,11 +5,11 @@ int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 	ssize_t	bytes = 1;
 	ssize_t	max = 150000 - 1;
 
-	char *buff;
+	char *buf;
 
 	try
 	{
-		buff = new char[max + 1];
+		buf = new char[max + 1];
 	}
 	catch(const std::exception& e)
 	{
@@ -17,19 +17,17 @@ int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 		return -1;
 	}
 
-	bytes = recv(clnt, buff, max, 0);
+	bytes = recv(clnt, buf, max, 0);
+ 	std::cout << "Bytes: " << bytes << "\n";
 
-	std::cout << "Bytes: " << bytes << "\n";
-
-	if (bytes <= 0)
-		return bytes;
+	socket.timeout = time(NULL);
 
 	for (ssize_t i = 0; i < bytes; i++)
 	{
-		client.allRequest.push_back(buff[i]);
+		client.allRequest.push_back(buf[i]);
 	}
 
-	delete[] buff;
+	delete[] buf;
 
 	if (client.method.empty() && client.allRequest.find("\n"))
 	{

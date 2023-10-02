@@ -115,27 +115,30 @@ void TCPserver::server_loop()
 
 			for (size_t i = 0; i < allFd.size(); ++i)
 			{
-					std::cout << "HELLO2\n";
-				if (FD_ISSET(allFd[i].fd, &main_read) && std::find(sockets.begin(), sockets.end(), allFd[i]) == sockets.end())
+				if (FD_ISSET(allFd[i].fd, &main_read) && std::find(sockets.begin(), sockets.end(), allFd[i].fd) == sockets.end())
 				{
-					std::cout << "HELLO1\n";
-					if (time(NULL) - allFd[i].timeout >= SOCKET_TIMEOUT - 5)
+					if (time(NULL) - allFd[i].timeout >= SOCKET_TIMEOUT)
 					{
-						std::cout << "HELLO\n";
 						ResponseHeaders headers;
 
 						headers.http_status = "408";
 						headers.build_headers();
 						clients[allFd[i].fd].response = headers.headers;
 
-						clients.erase(allFd[i].fd);
 						sendResponse(allFd[i].fd);
+						clients.erase(allFd[i].fd);
 						close(allFd[i].fd);
 						allFd.erase(std::find(allFd.begin(), allFd.end(), allFd[i].fd));
 						FD_CLR(allFd[i].fd, &main_read);
+
+						rc = -2;
+						break ;
 					}
 				}
 			}
+
+			if (rc == -2)
+				continue ;
 
 			for (int i = 3; i <= max_fd; ++i)
 			{
@@ -164,15 +167,10 @@ void TCPserver::server_loop()
 					}
 					else
 					{
-						std::cout << "else\n";
 						int res = receive(clients[i], i, *(std::find(allFd.begin(), allFd.end(), i)));
 
 						if (res == 1)
 						{
-							// for (std::map<std::string, std::string>::iterator it = clients[i].requestHeaders.begin(); it != clients[i].requestHeaders.end(); ++it)
-							// {
-							// 	std::cout << it->first << ": " << it->second << "\n";
-							// }
 							setResponseFile(clients[i], *(std::find(allFd.begin(), allFd.end(), i)));
 
 							FD_SET(i, &main_write);
