@@ -142,6 +142,6 @@ void close_pipes(int pipe_from[2], int pipe_to[2])
 bool socket_t::operator==(const socket_t& lhs) const { return host == lhs.host && port == lhs.port; }
 bool socket_t::operator==(const listen_t& lhs) const { return host == lhs.host && port == lhs.port; }
 bool socket_t::operator==(const int& socket) const { return fd == socket; }
-bool listen_t::operator==(const socket_t& socket) const { return host == socket.host && port == socket.port; }
 bool socket_t::operator==(const std::string& lhs) const { return port == lhs; }
+bool listen_t::operator==(const socket_t& socket) const { return host == socket.host && port == socket.port; }
 bool listen_t::operator==(const listen_t& ls) const { return host == ls.host && port == ls.port; }

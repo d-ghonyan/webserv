@@ -1,5 +1,13 @@
 #include "TCPserver.hpp"
 
+const char *ClientInfo::allowed_content_type[] = {
+	"image/jpeg",
+	"image/png",
+	"multipart/form-data",
+	"text/plain",
+	NULL,
+};
+
 void TCPserver::parsePostRequest(ClientInfo& client, ResponseHeaders& headers, std::string& type)
 {
 	type = client.requestHeaders["Content-Type"];
@@ -150,5 +158,3 @@ int TCPserver::uploadFile(std::string& filename, std::string& type, std::string&
 
 	return 0;
 }
-// return "<center> <h1> Error uploading file: " + std::string(strerror(errno)) + " </h1> </center>";
-// return "<center> <h1> File " + filename + extension + " uploaded! </h1> </center>";

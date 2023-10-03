@@ -130,3 +130,31 @@ void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, S
 		response = heading.headers + listDir(fileName);
 	}
 }
+
+std::string TCPserver::correctIndexFile(std::string &fileName, ServerInfo &servData, ResponseHeaders& headers)
+{
+	std::string full_path;
+
+	for (std::vector<std::string>::iterator it = servData.index_files.begin(); it < servData.index_files.end(); ++it)
+	{
+		full_path = fileName + *it;
+		if (access(full_path.c_str(), F_OK & R_OK) == 0)
+			return full_path;
+	}
+
+	headers.http_status = "403";
+	return "";
+}
+
+std::string	TCPserver::setContentType(ClientInfo& client)
+{
+	if (client.url.find(".css") != std::string::npos)
+		return ("text/css");
+	else if (client.url.find(".jpg") != std::string::npos
+			|| client.url.find(".jpeg") != std::string::npos)
+		return ("image/jpeg");
+	else if (client.url.find(".png") != std::string::npos)
+		return ("image/png");
+
+	return ("text/html");
+}

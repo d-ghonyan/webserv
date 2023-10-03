@@ -1,13 +1,5 @@
 #include "TCPserver.hpp"
 
-const char *ClientInfo::allowed_content_type[] = {
-	"image/jpeg",
-	"image/png",
-	"multipart/form-data",
-	"text/plain",
-	NULL,
-};
-
 TCPserver::TCPserver(const Config& conf)
 {
 	for(size_t i = 0; i < conf.servers.size(); ++i)
@@ -79,7 +71,6 @@ void TCPserver::server_loop()
 	struct sockaddr_in clntAddr;
 	socklen_t clntAddrlen = sizeof(clntAddr);
 
-	std::vector<int> acceptedFd;
 	std::vector<socket_t> allFd;
 
 	for(std::vector<socket_t>::iterator it = sockets.begin(); it != sockets.end(); ++it)
@@ -98,7 +89,7 @@ void TCPserver::server_loop()
 	{
 		read = main_read;
 		write = main_write;
-		timeout.tv_sec = 3;
+		timeout.tv_sec = 5;
 		timeout.tv_usec = 0;
 
 		rc = select(max_fd + 1, &read, &write, NULL, &timeout);
@@ -110,6 +101,7 @@ void TCPserver::server_loop()
 			if (rc < 0)
 			{
 				perror("Select error");
+				selectError(allFd, main_read, main_write);
 				continue ;
 			}
 
@@ -119,28 +111,22 @@ void TCPserver::server_loop()
 				{
 					if (time(NULL) - allFd[i].timeout >= SOCKET_TIMEOUT)
 					{
-						ResponseHeaders headers;
+						std::cout << "Socket " << allFd[i].fd << " timed out, closing.\n";
 
-						headers.http_status = "408";
-						headers.build_headers();
-						clients[allFd[i].fd].response = headers.headers;
-
-						sendResponse(allFd[i].fd);
-						clients.erase(allFd[i].fd);
 						close(allFd[i].fd);
+						clients.erase(allFd[i].fd);
 						allFd.erase(std::find(allFd.begin(), allFd.end(), allFd[i].fd));
-						FD_CLR(allFd[i].fd, &main_read);
 
-						rc = -2;
+						FD_CLR(allFd[i].fd, &main_read);
+						FD_CLR(allFd[i].fd, &main_write);
+
+						rc = -2; // skip the loop below
 						break ;
 					}
 				}
 			}
 
-			if (rc == -2)
-				continue ;
-
-			for (int i = 3; i <= max_fd; ++i)
+			for (int i = 3; rc != -2 && i <= max_fd; ++i)
 			{
 				if (FD_ISSET(i, &read))
 				{
@@ -210,45 +196,23 @@ void TCPserver::server_loop()
 	}
 }
 
-std::string	TCPserver::setContentType(ClientInfo& client)
+void TCPserver::selectError(std::vector<socket_t> &allFd, fd_set& main_read, fd_set& main_write)
 {
-	if (client.url.find(".css") != std::string::npos)
-		return ("text/css");
-	else if (client.url.find(".jpg") != std::string::npos
-			|| client.url.find(".jpeg") != std::string::npos)
-		return ("image/jpeg");
-	else if (client.url.find(".png") != std::string::npos)
-		return ("image/png");
-
-	return ("text/html");
-}
-
-std::string TCPserver::correctIndexFile(std::string &fileName, ServerInfo &servData, ResponseHeaders& headers)
-{
-	std::string full_path;
-
-	for (std::vector<std::string>::iterator it = servData.index_files.begin(); it < servData.index_files.end(); ++it)
+	for (size_t i = 0; i < allFd.size(); ++i)
 	{
-		full_path = fileName + *it;
-		if (access(full_path.c_str(), F_OK & R_OK) == 0)
-			return full_path;
+		if (std::find(sockets.begin(), sockets.end(), allFd[i].fd) == sockets.end())
+		{
+			close(allFd[i].fd);
+			clients.erase(allFd[i].fd);
+			allFd.erase(std::find(allFd.begin(), allFd.end(), allFd[i].fd));
+		}
 	}
 
-	headers.http_status = "403";
-	return "";
+	FD_ZERO(&main_read);
+	FD_ZERO(&main_write);
+
+	for (size_t i = 0; i < sockets.size(); ++i)
+		FD_SET(sockets[i].fd, &main_read);
 }
 
 TCPserver::~TCPserver() { }
-
-// struct timeval timeout = {0, 0};
-// timeout.tv_sec = 10;
-// timeout.tv_usec = 0;
-// for (int i = 3; i <= max_fd; ++i)
-// {
-	// 	std::vector<socket_t>::iterator it = std::find(sockets.begin(), sockets.end(), i);
-
-	// 	if (FD_ISSET(i, &main_read) && it == sockets.end())
-	// 	{
-	// 		close(i);
-	// 	}
-// }

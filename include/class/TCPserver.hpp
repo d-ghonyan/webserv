@@ -33,7 +33,7 @@
 # define READ 0
 # define WRITE 1
 
-# define SOCKET_TIMEOUT 5
+# define SOCKET_TIMEOUT 8
 
 # define MAX_BUF (1024UL * 1024UL * 1024UL * 15UL)
 
@@ -52,6 +52,8 @@ private:
 	int				createSocket(const char *name, const char *port);
 	void			initFdSets(fd_set& master, fd_set& wrmaster);
 	void			getSockets(const Config& conf);
+	void			selectError(std::vector<socket_t> &allFd, fd_set& main_read, fd_set& main_write);
+
 
 private:
 	int				receive(ClientInfo& client, int clnt, socket_t& socket);
