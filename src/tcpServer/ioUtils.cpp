@@ -25,7 +25,9 @@ int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 		return bytes;
 	}
 
- 	std::cout << "Bytes: " << bytes << "\n";
+	std::cout << "socket " << clnt << " performed a read: " << buf << "\n";
+
+ 	// std::cout << "Bytes: " << bytes << "\n";
 
 	socket.timeout = time(NULL);
 

@@ -86,14 +86,13 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 			while ((bytes = write(pipe_to_child[WRITE], client.requestBody.c_str(), client.requestBody.size())) > 0)
 			{
 				start = time(NULL);
-				std::cout << client.requestBody.size() << "\n";
 				client.requestBody.erase(0, bytes);
 			}
 
 			if (client.requestBody.empty())
 				break ;
 
-			if (time(NULL) - start >= 3)
+			if (time(NULL) - start >= CGI_TIMEOUT)
 			{
 				close(pipe_to_child[WRITE]);
 				close(pipe_from_child[READ]);
@@ -103,12 +102,12 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 
 				waitpid(child, NULL, 0);
 
+				std::cout << "--------------------CGI TIMEOUT WRITE--------------------\n";
+
 				return ;
 			}
 		}
 	}
-
-	std::cout << "BAREV\n";
 
 	close(pipe_to_child[WRITE]);
 
@@ -140,10 +139,11 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 	if (res == 0)
 	{
 		kill(child, SIGKILL);
+		std::cout << "--------------------CGI TIMEOUT READ--------------------\n";
 		response = readFile(servData.root + servData.error_pages[408]);
 	}
 
-	std::cout << "---------CGI END------------\n";
+	std::cout << "--------------------CGI END--------------------\n";
 	close(pipe_from_child[READ]);
 
 	waitpid(child, NULL, 0);

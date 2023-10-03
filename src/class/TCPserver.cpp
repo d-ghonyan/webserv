@@ -107,6 +107,7 @@ void TCPserver::server_loop()
 
 			for (size_t i = 0; i < allFd.size(); ++i)
 			{
+				std::cout << "checking socket: " << allFd[i].fd << "\n";
 				if (FD_ISSET(allFd[i].fd, &main_read) && std::find(sockets.begin(), sockets.end(), allFd[i].fd) == sockets.end())
 				{
 					if (time(NULL) - allFd[i].timeout >= SOCKET_TIMEOUT)
@@ -115,15 +116,16 @@ void TCPserver::server_loop()
 
 						close(allFd[i].fd);
 						clients.erase(allFd[i].fd);
-						allFd.erase(std::find(allFd.begin(), allFd.end(), allFd[i].fd));
 
 						FD_CLR(allFd[i].fd, &main_read);
 
 						rc = -2; // skip the loop below
-						break ;
+						allFd[i].fd = -1;
 					}
 				}
 			}
+
+			allFd.erase(std::remove(allFd.begin(), allFd.end(), -1), allFd.end());
 
 			for (int i = 3; rc != -2 && i <= max_fd; ++i)
 			{
@@ -146,20 +148,23 @@ void TCPserver::server_loop()
 
 						allFd.push_back(socket_t(clnt, it->host, it->port));
 
+						std::cout << "socket " << clnt << " added to set\n";
 						FD_SET(clnt, &main_read);
 
 						fcntl(clnt, F_SETFL, O_NONBLOCK);
 					}
 					else
 					{
+						std::cout << "socket " << i << " tries to receive\n";
 						int res = receive(clients[i], i, *(std::find(allFd.begin(), allFd.end(), i)));
 
 						if (res == 1)
 						{
+							std::cout << "socket " << i << " finished reading\n";
 							setResponseFile(clients[i], *(std::find(allFd.begin(), allFd.end(), i)));
 
-							FD_SET(i, &main_write);
 							FD_CLR(i, &main_read);
+							FD_SET(i, &main_write);
 						}
 						else if (res < 0)
 						{
@@ -168,8 +173,8 @@ void TCPserver::server_loop()
 
 							allFd.erase(std::find(allFd.begin(), allFd.end(), i));
 
-							FD_CLR(i, &main_write);
 							FD_CLR(i, &main_read);
+							FD_CLR(i, &main_write);
 
 							break ;
 						}
@@ -179,11 +184,12 @@ void TCPserver::server_loop()
 				{
 					if (sendResponse(i))
 					{
+						std::cout << "socket " << i << " closed with write\n";
 						close (i);
 						clients.erase(clients.find(i));
 						allFd.erase(std::find(allFd.begin(), allFd.end(), i));
-						FD_CLR(i, &main_write);
 						FD_CLR(i, &main_read);
+						FD_CLR(i, &main_write);
 					}
 				}
 			}

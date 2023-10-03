@@ -33,6 +33,7 @@
 # define READ 0
 # define WRITE 1
 
+# define CGI_TIMEOUT 3
 # define SOCKET_TIMEOUT 8
 
 # define MAX_BUF (1024UL * 1024UL * 1024UL * 15UL)
