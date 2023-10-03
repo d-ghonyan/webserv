@@ -90,10 +90,9 @@ void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, S
 	{
 		heading.content_type = setContentType(client);
 		heading.build_headers();
-		response = heading.headers;
 
 		if ((status >= 300 && status <= 600))
-			response += readFile(servData.root + servData.error_pages[status]);
+			response = readFile(servData.root + servData.error_pages[status]);
 		else
 		{
 			if (fileName.rfind('.') != std::string::npos && fileName.substr(fileName.rfind('.')) == ".py")
@@ -102,28 +101,28 @@ void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, S
 			}
 			else if (client.method == "GET")
 			{
-				response += readFile(fileName);
+				response = readFile(fileName);
 			}
 			else if (client.method == "POST")
 			{
 				if (type == "multipart/form-data")
 				{
 					if (postMultipart(client.requestBody, client.boundary, servData.uploadDir))
-						response += readFile(servData.root + servData.error_pages[500]);
+						response = readFile(servData.root + servData.error_pages[500]);
 					else
-						response += "<center> <h1> Files uploaded! </h1> </center>";
+						response = "<center> <h1> Files uploaded! </h1> </center>";
 				}
 				else if (type == "image/jpeg" || type == "image/png" || type == "text/plain")
 				{
 					if (post(type, client.requestBody, servData.uploadDir))
-					{
-						response += readFile(servData.root + servData.error_pages[500]);
-					}
+						response = readFile(servData.root + servData.error_pages[500]);
 					else
-						response += "<center> <h1> Files uploaded! </h1> </center>";
+						response = "<center> <h1> Files uploaded! </h1> </center>";
 				}
 			}
 		}
+
+		response = heading.headers + response;
 	}
 	else
 	{

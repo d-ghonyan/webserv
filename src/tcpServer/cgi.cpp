@@ -76,7 +76,7 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 	close(pipe_to_child[READ]);
 	close(pipe_from_child[WRITE]);
 
-	std::cout <<  "\x1B[32mBuffer: " << client.requestBody << "\x1B[0m\n";
+	// std::cout <<  "\x1B[32mBuffer: " << client.requestBody << "\x1B[0m\n";
 
 	if (client.method != "GET")
 		write(pipe_to_child[WRITE], client.requestBody.c_str(), client.requestBody.size()); // while select
@@ -84,7 +84,6 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 	close(pipe_to_child[WRITE]);
 
 	char c;
-	std::string buffer;
 	ssize_t bytesRead;
 
 	fd_set child_fd;
@@ -102,7 +101,7 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 
 		while ((bytesRead = read(pipe_from_child[READ], &c, 1)) > 0)
 		{
-			buffer.push_back(c);
+			response.push_back(c);
 		}
 
 		if (bytesRead == 0)
@@ -114,10 +113,8 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 		kill(child, SIGKILL);
 		response = readFile(servData.root + servData.error_pages[408]);
 	}
-	else
-		response += buffer;
 
-	std::cout << "A\n";
+	std::cout << "---------CGI END------------\n";
 	close(pipe_from_child[READ]);
 
 	waitpid(child, NULL, 0);
