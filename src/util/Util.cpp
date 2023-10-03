@@ -129,7 +129,6 @@ bool contains(char const * const allowed[], const std::string &token)
 	return false;
 }
 
-
 void close_pipes(int pipe_from[2], int pipe_to[2])
 {
 	close(pipe_to[0]);

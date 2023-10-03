@@ -42,13 +42,13 @@ struct listen_t
 std::ostream& operator<<(std::ostream& os, const listen_t& ls);
 std::ostream& operator<<(std::ostream& os, const socket_t& socket);
 
-int my_stoi(const std::string& s);
-size_t my_stos_t(const std::string& s);
-std::vector<std::string> splitIP(const std::string& line, int delim_count, char delim); // tox lrvi
-std::string my_to_string(ssize_t num);
-bool contains(char const * const allowed[], const std::string &token);
-ssize_t hex_to_int(const std::string& hex);
-void close_pipes(int pipe_from[2], int pipe_to[2]);
+int							my_stoi(const std::string& s);
+bool						contains(char const * const allowed[], const std::string &token);
+void						close_pipes(int pipe_from[2], int pipe_to[2]);
+size_t						my_stos_t(const std::string& s);
+ssize_t						hex_to_int(const std::string& hex);
+std::string					my_to_string(ssize_t num);
+std::vector<std::string>	splitIP(const std::string& line, int delim_count, char delim); // tox lrvi
 
 struct NonDigit
 {

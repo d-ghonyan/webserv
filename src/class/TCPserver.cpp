@@ -118,7 +118,6 @@ void TCPserver::server_loop()
 						allFd.erase(std::find(allFd.begin(), allFd.end(), allFd[i].fd));
 
 						FD_CLR(allFd[i].fd, &main_read);
-						FD_CLR(allFd[i].fd, &main_write);
 
 						rc = -2; // skip the loop below
 						break ;
