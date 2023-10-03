@@ -220,7 +220,6 @@ std::string	TCPserver::setContentType(ClientInfo& client)
 	else if (client.url.find(".png") != std::string::npos)
 		return ("image/png");
 
-	//typeri checky avelacnel
 	return ("text/html");
 }
 

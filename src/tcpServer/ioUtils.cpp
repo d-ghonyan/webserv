@@ -18,6 +18,13 @@ int TCPserver::receive(ClientInfo& client, int clnt, socket_t& socket)
 	}
 
 	bytes = recv(clnt, buf, max, 0);
+
+	if (bytes <= 0)
+	{
+		delete[] buf;
+		return bytes;
+	}
+
  	std::cout << "Bytes: " << bytes << "\n";
 
 	socket.timeout = time(NULL);

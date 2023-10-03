@@ -16,7 +16,7 @@ char * const *TCPserver::setEnv(std::map<std::string, std::string>& env, ServerI
 	env["SERVER_SOFTWARE"] = "webserv/1.0";
 	env["SERVER_NAME"] = "localhost";
 	env["GATEWAY_INTERFACE"] = "python/69.420";
-
+	env["SERVER_WRITE_PATH"] = servData.uploadDir;
 	//REQUEST_SPECIFIC
 
 	env["SERVER_PROTOCOL"] = "HTTP";
@@ -131,7 +131,7 @@ void TCPserver::cgiChild(ServerInfo& servData, ClientInfo& client, int pipe_from
 
 	dup2(pipe_to_child[READ], STDIN_FILENO);
 	dup2(pipe_from_child[WRITE], STDOUT_FILENO);
-	dup2(pipe_from_child[WRITE], STDERR_FILENO);
+	// dup2(pipe_from_child[WRITE], STDERR_FILENO);
 
 	close_pipes(pipe_from_child, pipe_to_child);
 

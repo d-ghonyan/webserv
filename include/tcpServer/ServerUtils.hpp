@@ -24,7 +24,6 @@ struct ClientInfo
 	std::string							query;
 	std::string							method;
 	std::string							response;
-	std::string							fullPath;
 	std::string							boundary;
 	std::string							allRequest;
 	std::string							requestBody;

@@ -7,13 +7,9 @@ void TCPserver::setResponseFile(ClientInfo& client, socket_t& socket)
 	std::string			response;
 	ResponseHeaders		heading;
 
-	std::cout << "ischunked222\n";
-
 	ServerInfo& servData = getLocationData(socket, client.requestHeaders["Host"], client.url);
 
 	servData.socket = socket;
-
-	heading.http_status = "200";
 
 	if (isRedirect(heading, servData, client))
 		return ;
@@ -72,7 +68,7 @@ void TCPserver::setResponseFile(ClientInfo& client, socket_t& socket)
 	{
 		if (std::remove((servData.uploadDir + client.url).c_str()) != 0)
 		{
-			heading.http_status = "404";
+			heading.http_status = "403";
 			perror("Remove");
 		}
 	}
@@ -83,12 +79,10 @@ void TCPserver::setResponseFile(ClientInfo& client, socket_t& socket)
 void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, ServerInfo servData, bool dir, ClientInfo& client)
 {
 	std::string type;
-	std::string response;
+	std::string &response = client.response;
 
 	if (client.method == "POST")
-	{
 		parsePostRequest(client, heading, type);
-	}
 
 	int status = my_stoi(heading.http_status);
 
@@ -130,15 +124,10 @@ void TCPserver::buildResponse(std::string &fileName, ResponseHeaders &heading, S
 				}
 			}
 		}
-		client.fullPath = fileName;
-		client.response = response;
-
 	}
 	else
 	{
 		heading.build_headers();
 		response = heading.headers + listDir(fileName);
-		client.response = response;
-		client.fullPath = fileName;
 	}
 }

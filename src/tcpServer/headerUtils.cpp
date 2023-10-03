@@ -3,7 +3,7 @@
 ResponseHeaders::ResponseHeaders()
 {
 	http_version	= "HTTP/1.1 ";
-	http_status	= "200 OK";
+	http_status	= "200";
 	connection	= "Close";
 	content_type	= "text/html";
 	backslash_r_n	= "\r\n";
