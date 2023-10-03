@@ -45,17 +45,21 @@ void TCPserver::setResponseFile(ClientInfo& client, socket_t& socket)
 	{
 		if (isDir(fileName))
 		{
+			std::string index = correctIndexFile(fileName, servData, heading);
+
+			std::cout << "index: " << index << "\n";
+
 			if (checkDir(fileName, heading))
 			{
 				buildResponse(fileName, heading, servData, 0, client);
 				return ;
 			}
-			if (!servData.autoindex)
+			if (index != "")
 			{
-				fileName = correctIndexFile(fileName, servData, heading);
 				isIndex = true;
+				fileName = index;
 			}
-			else
+			else if (servData.autoindex)
 			{
 				buildResponse(fileName, heading, servData, 1, client);
 				return ;

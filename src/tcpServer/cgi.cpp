@@ -76,10 +76,39 @@ void TCPserver::callCgi(ServerInfo& servData, ClientInfo& client, std::string& r
 	close(pipe_to_child[READ]);
 	close(pipe_from_child[WRITE]);
 
-	// std::cout <<  "\x1B[32mBuffer: " << client.requestBody << "\x1B[0m\n";
+	if (client.method == "POST")
+	{
+		while (1)
+		{
+			time_t start = time(NULL);
+			ssize_t bytes;
 
-	if (client.method != "GET")
-		write(pipe_to_child[WRITE], client.requestBody.c_str(), client.requestBody.size()); // while select
+			while ((bytes = write(pipe_to_child[WRITE], client.requestBody.c_str(), client.requestBody.size())) > 0)
+			{
+				start = time(NULL);
+				std::cout << client.requestBody.size() << "\n";
+				client.requestBody.erase(0, bytes);
+			}
+
+			if (client.requestBody.empty())
+				break ;
+
+			if (time(NULL) - start >= 3)
+			{
+				close(pipe_to_child[WRITE]);
+				close(pipe_from_child[READ]);
+
+				kill(child, SIGKILL);
+				response = readFile(servData.root + servData.error_pages[408]);
+
+				waitpid(child, NULL, 0);
+
+				return ;
+			}
+		}
+	}
+
+	std::cout << "BAREV\n";
 
 	close(pipe_to_child[WRITE]);
 
@@ -128,7 +157,6 @@ void TCPserver::cgiChild(ServerInfo& servData, ClientInfo& client, int pipe_from
 
 	dup2(pipe_to_child[READ], STDIN_FILENO);
 	dup2(pipe_from_child[WRITE], STDOUT_FILENO);
-	// dup2(pipe_from_child[WRITE], STDERR_FILENO);
 
 	close_pipes(pipe_from_child, pipe_to_child);
 
@@ -150,12 +178,3 @@ void TCPserver::cgiChild(ServerInfo& servData, ClientInfo& client, int pipe_from
 
 	exit(1);
 }
-
-// while ((a = select(pipe_from_child[READ] + 1, &child_fd, NULL, NULL, &timeout)) == 0)
-// {
-// 	// std::cout << a << " barev\n";
-// 	// FD_SET(pipe_from_child[READ], &child_fd);
-// 	// timeout.tv_sec = 5;
-// 	// break ;
-// 	close(pipe_from_child[READ]);
-// }
