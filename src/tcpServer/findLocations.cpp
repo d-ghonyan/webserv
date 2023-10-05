@@ -44,16 +44,18 @@ ServerInfo& TCPserver::getLocationData(const socket_t& socket, const std::string
 		it = std::find(serverData.begin(), serverData.end(), serverName);
 
 		if (it == serverData.end())
+		{
 			it = serverData.begin();
 
-		TCPserver::info_iterator l_it = findLocation(it, route);
-
-		return l_it == it->info.location.end() ? it->info : l_it->second;
-	}
-
-	if (count == 0)
-	{
-		it = std::find(serverData.begin(), serverData.end(), socket_t("", socket.port));
+			for (size_t i = 0; i < serverData.size(); ++i)
+			{
+				if (std::find(serverData[i].server_names.begin(), serverData[i].server_names.end(), "") != serverData[i].server_names.end())
+				{
+					std::advance(it, i);
+					break ;
+				}
+			}
+		}
 
 		TCPserver::info_iterator l_it = findLocation(it, route);
 
