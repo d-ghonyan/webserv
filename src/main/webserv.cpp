@@ -1,18 +1,22 @@
-#include "webserv.hpp"
+#include "TCPserver.hpp"
 
 int main(int argc, char **argv)
 {
-	(void)argc;
-	(void)argv;
-
-	NginxConfig	config = ( argc > 1 ? NginxConfig(argv[1]) : NginxConfig() );
+	Config conf(argc > 1 ? argv[1] : DEFAULT_FILE_PATH);
 
 	try
 	{
-		config.parse();
+		conf.parse();
+		// conf.print();
+
+		TCPserver socket(conf);
+
+		socket.server_loop();
+
+		return 0;
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << "Error: " << e.what() << '\n';
+		std::cerr << e.what() << '\n';
 	}
 }

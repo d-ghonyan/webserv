@@ -4,40 +4,67 @@
 # include <map>
 # include <vector>
 # include <iostream>
+# include <algorithm>
 
+# include "Util.hpp"
 # include "Location.hpp"
 
-# define DEFAULT_PORT 80
+# define DEFAULT_HOST ""
+# define DEFAULT_PORT "8080"
 # define DEFAULT_SERVER_NAME ""
-# define DEFAULT_MAX_BODY_SIZE 1024
+# define DEFAULT_MAX_BODY_SIZE 1000000 // 1M
+
+# ifndef DEFAULT_ROOT
+#  define DEFAULT_ROOT "./www"
+# endif
+
+# define DEFAULT_403_PAGE "error_pages/403.html"
+# define DEFAULT_404_PAGE "error_pages/404.html"
 
 class Server
 {
+public:
+	typedef std::vector<listen_t>		listen_type;
+	typedef std::map<int, std::string>	error_page_type;
+	typedef std::vector<std::string>	server_name_type;
+
 private:
-	std::string max_body_size;
-	std::vector<std::string> listen;
-	std::map<std::string, std::string> error_pages;
-	std::vector<std::string> server_names;
+
+	ssize_t								max_body_size;
+	std::string							root;
+	std::vector<listen_t>				listen;
+	std::map<int, std::string>			error_pages;
+	std::vector<std::string> 			server_names;
 
 public:
 	Server();
 	~Server();
 
 public:
-	void pushListen(const std::string& l);
-	void setMaxBodySize(const std::string& l);
+	void pushListen(const std::string& host, const std::string& port);
+	void setMaxBodySize(ssize_t l);
+	void setRoot(const std::string& rt);
 	void pushServerName(const std::string& server_name);
-	void pushErrorPage(const std::string& error_code, const std::string& error_page);
+	void pushErrorPage(int error_code, const std::string& error_page);
 
 public:
-	std::string getMaxBodySize() const ;
+	ssize_t getMaxBodySize() const ;
+	const std::string& getRoot() const ;
+	const std::vector<listen_t>& getListens() const ;
+	const std::map<int, std::string>& getErrorPages() const ;
+	const std::vector<std::string>& getServerNames() const ;
 
 public:
 	void print_everything();
-	void printVectors(const std::vector<std::string>& vec);
+
+	template <typename T>
+	void printVectors(const std::vector<T>& vec);
+
+	bool operator==(const std::string& serverName) const ;
+	bool operator==(const listen_t& lst) const ;
 
 public:
-	std::vector< std::map<Location, std::string> > locations;
+	std::map<std::string, Location>		locations;
 };
 
 #endif // CLASS_SERVER_HPP
